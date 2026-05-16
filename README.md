@@ -1,4 +1,4 @@
-﻿# 四象合参 · 象推演 | Four-Elephant Synthesis · Xiang Tuiye
+﻿# 解卦 | Xiang Tuiye
 
 **以代码演绎象数，用推演替代断言**
 
@@ -46,7 +46,7 @@ Layer 6: 综合推演                    — 五卦合参 + 启发提问
 ### 作为 OpenClaw Skill 使用（推荐）
 
 ```bash
-gamma skill install sitiantai-xiangtuie
+openclaw skills install sitiantai-xiangtuie
 ```
 
 在对话中直接说：
