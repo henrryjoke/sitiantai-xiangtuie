@@ -453,3 +453,90 @@ def arrange_hexagram(original_hexagram: List[int], time: datetime,
         },
         "动爻":moving_indices,
     }
+
+
+# ══════════════════════════════════════════════════════════
+# 卦名输入模式 (v0.2.1 新增)
+# ══════════════════════════════════════════════════════════
+
+# 卦名→二进制反向查找表（从 HEXAGRAMS 提取）
+_HEXAGRAM_NAME_TO_BINARY: Dict[str, List[int]] = {}
+for _key, _val in HEXAGRAMS.items():
+    _name = _val.get("卦名", "")
+    if _name:
+        _HEXAGRAM_NAME_TO_BINARY[_name] = [int(x) for x in _key.split(",")]
+
+
+def get_hexagram_binary(name: str) -> Optional[List[int]]:
+    """根据卦名获取二进制 [0/1]×6（初爻到上爻）。未找到返回 None。"""
+    return _HEXAGRAM_NAME_TO_BINARY.get(name)
+
+
+def deduce_moving_lines(ben_name: str, bian_name: str) -> Tuple[List[int], List[int], List[int]]:
+    """
+    对比本卦与变卦，推算动爻索引。
+
+    参数：
+        ben_name: 本卦名（如"巽为风"）
+        bian_name: 变卦名（如"地风升"）
+
+    返回：(moving_indices, ben_binary, bian_binary)
+        moving_indices: 动爻索引列表（0-based，0=初爻）
+        ben_binary: 本卦二进制
+        bian_binary: 变卦二进制
+    """
+    ben_binary = get_hexagram_binary(ben_name)
+    bian_binary = get_hexagram_binary(bian_name)
+
+    if ben_binary is None:
+        raise ValueError(f"未找到本卦：'{ben_name}'")
+    if bian_binary is None:
+        raise ValueError(f"未找到变卦：'{bian_name}'")
+
+    moving = [i for i in range(6) if ben_binary[i] != bian_binary[i]]
+    return moving, ben_binary, bian_binary
+
+
+def binary_to_hexagram_encoding(binary: List[int], moving: List[int]) -> List[int]:
+    """
+    二进制 [0/1]×6 + 动爻索引 → [1,2,3,4]×6 编码。
+
+    规则：
+      阳爻(1) + 非动 → 2(少阳)
+      阳爻(1) + 动   → 3(老阳)
+      阴爻(0) + 非动 → 1(少阴)
+      阴爻(0) + 动   → 4(老阴)
+    """
+    encoding = []
+    for i, bit in enumerate(binary):
+        if bit == 1:
+            encoding.append(3 if i in moving else 2)
+        else:
+            encoding.append(4 if i in moving else 1)
+    return encoding
+
+
+def arrange_hexagram_by_name(ben: str, bian: Optional[str],
+                             time: datetime, reason: str = "") -> Dict[str, Any]:
+    """
+    卦名输入模式的一键排盘。
+
+    参数：
+        ben: 本卦名（如"巽为风"）
+        bian: 变卦名（可选，如"地风升"）。无动爻时传 None。
+        time: 占测时间
+        reason: 占问事项
+
+    返回：arrange_hexagram() 的完整输出
+    """
+    ben_binary = get_hexagram_binary(ben)
+    if ben_binary is None:
+        raise ValueError(f"未找到本卦：'{ben}'")
+
+    if bian:
+        moving, _, _ = deduce_moving_lines(ben, bian)
+    else:
+        moving = []
+
+    encoding = binary_to_hexagram_encoding(ben_binary, moving)
+    return arrange_hexagram(encoding, time, reason)

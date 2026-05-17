@@ -30,25 +30,84 @@ triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一
 
 ## 2. 输入协议
 
-用户输入包含以下字段（可部分省略，由 AI 推断补全）：
+### 2.1 两种入口
 
+**入口A：用户已有卦象**（原有流程）
 ```
 时间：YYYY-MM-DD HH:MM （默认当前时间，Asia/Shanghai）
-事项：自然语言描述（如"这个合作项目进展如何？"）
-外应：可选，用户提供的环境感知（如"刚下大雨""听到鸟叫"）
+事项：自然语言描述
+卦象：卦名（如"巽为风"）或 卦名+变卦名（如"巽为风→地风升"）
+      或 六爻编码 [1,2,3,4]×6（1=少阴 2=少阳 3=老阳动 4=老阴动）
+外应：可选
+```
+
+**入口B：起卦后解卦**（新增）
+```
+时间：YYYY-MM-DD HH:MM （默认当前时间）
+事项：自然语言描述
+起卦方式：
+  B1: 梅花易数日期起卦 — 自动根据年月日时计算
+  B2: 掷铜钱起卦 — 传统三硬币法
+      - 手动输入：逐爻告知铜钱结果（如"3背""2背1字""1背2字""3字"）
+      - 随机模拟：系统自动掷铜钱
+外应：可选
+```
+
+### 2.2 识别规则
+
+- 用户说"帮我算一卦""我想问卦""帮我起卦" → 入口B
+- 用户说"我有个卦""帮我解一下这个卦"或直接给卦名 → 入口A
+- 用户说"掷铜钱""摇铜钱""三枚铜钱" → B2
+- 用户说"用时间起卦""梅花起卦" → B1
+- 模糊时先确认入口
+
+### 2.3 起卦信息收集
+
+**B1 梅花日期起卦**：仅需时间+事项，自动起卦。
+
+**B2 掷铜钱起卦**：需收集6次铜钱结果（从初爻到上爻）。
+询问格式：
+```
+🪙 掷铜钱起卦（卜蓍正宗·三硬币法）
+
+每次摇3枚铜钱，记录结果：
+  3背(老阳) → ○ 阳爻动
+  2背1字(少阴) → ─ ─ 阴爻静
+  1背2字(少阳) → ───── 阳爻静  
+  3字(老阴) → × 阴爻动
+
+请告诉我6次摇的结果（从初爻到上爻）：
+  方式1: 逐爻输入，如 "3背 2背1字 1背2字 3字 2背1字 1背2字"
+  方式2: 简写背数，如 "3 2 1 0 2 1"
+  方式3: 说"随机"，我帮你模拟
 ```
 
 ---
 
 ## 3. 推演工作流（Phase 1: Skill + 脚本）
 
-### 第零步：信息确认
+### 第零步：入口路由与信息确认
+
+#### 路由判断
+```
+if 用户已有卦象（给卦名/编码）:
+    → 入口A，跳到第一步
+elif 用户要求起卦:
+    if 梅花日期起卦:
+        → 入口B1，收集时间+事项，执行起卦
+    elif 掷铜钱起卦:
+        → 入口B2，收集6次铜钱结果，执行起卦
+    → 起卦完成后，获得 hexagram_encoding，进入第一步
+```
+
+#### 信息确认
 若用户输入不完整（缺时间/事项），先引导补充。
 确认格式：
 ```
 📅 时间确认：YYYY年MM月DD日 HH:MM（当前/指定）
 🔍 事项确认：[用户描述]
 👁 外应有/无：[如有] xxx
+🪙 起卦方式：[已有卦象 / 梅花日期起卦 / 掷铜钱起卦]
 ```
 
 ### 第一步：Layer 0 — 干支历法（自动执行）
@@ -57,27 +116,54 @@ triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一
 - 节气信息（当前节气、前后节气）
 - 旬空、月建
 
-### 第二步：Layer 1 — 梅花易数（自动执行）
-调用 `scripts/meihua.py::compute_meihua(year, month, day, hour)`
+### 第二步：Layer 1 — 梅花易数 / 起卦结果
+
+#### 路径A：用户已有卦象
+- 卦名模式：调用 `scripts/liuyao.py::arrange_hexagram_by_name(ben, bian, time, reason)`
+- 编码模式：直接传入 `[1,2,3,4]×6` 编码
+- 梅花信息（体用/互/错/综）从六爻编码反推
+
+#### 路径B1：梅花日期起卦
+调用 `scripts/qigua.py::meihua_date_qigua(year, month, day, hour)`
 
 **输出字段**：
 ```python
 {
-  "卦名": "风天小畜",  # 本卦名
-  "上卦": "巽", "下卦": "乾",  # 上下卦名
-  "体卦": "巽", "用卦": "乾",  # 动爻≤3体为上卦，>3体为下卦
-  "变爻": 3,  # 1-6，第几爻动
+  "method": "meihua_date",
+  "卦名": "风天小畜",
+  "上卦": "巽", "下卦": "乾",
+  "体卦": "巽", "用卦": "乾",
+  "变爻": 3,  # 1-6
   "变卦": {"上卦":"巽", "下卦":"兑", "卦名":"风泽中孚"},
-  "互卦": {"上互":"离", "下互":"兑", "卦名":"风天小畜"},
-  "错卦": {"上卦":"震", "下卦":"坤", "卦名":"震坤卦"},
-  "综卦": {"上卦":"乾", "下卦":"兑", "卦名":"天泽履"},
+  "互卦": {...},
+  "错卦": {...},
+  "综卦": {...},
+  "hexagram_encoding": [1,2,2,1,2,3],  # 供 liuyao.py 使用
+  "变卦_encoding": [1,2,2,1,2,1],
 }
 ```
 
-**辅助函数**：`gua_to_lines(上卦名, 下卦名) → [1-4]*6` 将卦名转为六爻数字编码供六爻模块使用。
+#### 路径B2：掷铜钱起卦
+调用 `scripts/qigua.py::coin_toss_qigua(tosses)` 或 `coin_toss_interactive_input(results)` 或 `coin_toss_random()`
+
+**输出字段**：
+```python
+{
+  "method": "coin_toss",
+  "toss_summary": [{"爻位":"初爻", "背数":3, "结果":"老阳", "爻象":"───── ○"}, ...],
+  "hexagram_encoding": [3,1,2,4,1,2],
+  "卦名": "山火贲",
+  "动爻": [0,3],  # 0-based
+}
+```
+
+**桥接**：起卦结果中的 `hexagram_encoding` 可直接传入 `liuyao.py::arrange_hexagram()` 或 `qigua.py::qigua_full_pailian()`。
 
 ### 第三步：Layer 2 — 六爻纳甲（自动执行）
-调用 `scripts/liuyao.py::arrange_hexagram(六爻, datetime, 事项)`
+
+**入口A（卦名）**：`scripts/liuyao.py::arrange_hexagram_by_name(ben, bian, time, reason)`
+**入口A（编码）**：`scripts/liuyao.py::arrange_hexagram(encoding, time, reason)`
+**入口B**：`scripts/qigua.py::qigua_full_pailian(encoding, time, reason)` （内部调用 arrange_hexagram）
 
 **输出字段**：
 ```python
@@ -342,7 +428,8 @@ data/xiang/
 用户 → AI Skill（象推演）→ Python 脚本层
   ├── scripts/calendar.py      # 历法精算+八字 ✅
   ├── scripts/meihua.py        # 梅花易数（时间起卦/体用/错综） ✅
-  ├── scripts/liuyao.py        # 六爻纳甲（本变/世应/六亲/六神/旺衰） ✅
+  ├── scripts/liuyao.py        # 六爻纳甲（本变/世应/六亲/六神/旺衰/卦名输入） ✅
+  ├── scripts/qigua.py         # 起卦引擎（梅花日期起卦+掷铜钱起卦+桥接） ✅ NEW
   ├── scripts/liuren.py        # 大六壬（天地盘/四课/三传/贵人） ✅
   ├── scripts/qimen.py         # 奇门遁甲（地盘/天盘/八门/九星/八神） ✅
   └── scripts/xiang_query.py   # 类象查询引擎（28符号→6类别→多语境展开） ✅
@@ -363,21 +450,41 @@ data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
 
 ## 11. 版本记录
 
+- **v0.3.0** (2026-05-17): 起卦功能完善。
+  - 新增 scripts/qigua.py（起卦引擎）
+    - `meihua_date_qigua()` 梅花易数日期起卦
+    - `meihua_to_hexagram_encoding()` 梅花→六爻编码桥接
+    - `coin_toss_qigua()` 掷铜钱起卦（手动输入）
+    - `coin_toss_random()` 随机模拟掷铜钱
+    - `coin_toss_interactive_input()` 简化格式铜钱输入
+    - `coin_toss_result_to_encoding()` 铜钱结果→编码
+    - `qigua_full_pailian()` 起卦→六爻排盘一站式调用
+    - `encoding_to_display()` 编码→爻象显示
+  - liuyao.py 新增卦名输入函数（v0.2.1 承诺）
+    - `get_hexagram_binary()` 卦名→二进制
+    - `deduce_moving_lines()` 对比本卦变卦推算动爻
+    - `binary_to_hexagram_encoding()` 二进制→编码
+    - `arrange_hexagram_by_name()` 卦名一键排盘
+  - SKILL.MD §2 新增双入口协议（A:已有卦象 / B:起卦后解卦）
+  - SKILL.MD §3 第零步新增入口路由判断
+  - SKILL.MD §3 第二步新增起卦路径分支（B1/B2）
+  - 端到端联调通过：梅花起卦→六爻→象展开 + 掷铜钱→六爻→象展开
+
+- **v0.2.1** (2026-05-17): 卦名输入模式修正（代码未写入，在本版本补全）。
+  - 修复虚构时辰问题
+  - 修复多爻动处理
+  - liuyao.py 补全 arrange_hexagram_by_name 等函数
+
 - **v0.2.0** (2026-05-15): Phase 1 全部完成。
   - 新增 scripts/xiang_query.py（类象查询 SDK）
   - 新增 data/xiang/ 28 JSON 文件（6 类别全覆盖）
   - Phase 1.1-1.4 类象知识库建设完成
   - 端到端联调通过（梅花→六爻→类象展开→推演输出）
-  - 更新工作流 Step 2-4 包含具体函数调用和 SDK API
-  - 更新 §9 知识库结构为实际 28-JSON 6-类别布局
-  - 更新 §10 技术架构，标记全部脚本完成
 
 - **v0.1.0** (2026-05-15): 初始 Skill 框架。
   - Layer 0-2 自动执行 + Layer 5 象展开 + Layer 6a 综合推演
   - 六壬/奇门改为用户触发
   - 新增：反馈引导、风格记忆、验证闭环、自我评估
-  - TODO: 推理链与推理示例（后续深入讨论）
-  - TODO: 类象知识库建设计划执行
 
 ---
 
@@ -426,6 +533,19 @@ data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
 ---
 
 ## 13. 版本记录（按时间倒序）
+
+- **v0.3.0** (2026-05-17): 起卦功能完善。
+  - 新增 scripts/qigua.py（起卦引擎）
+    - `meihua_date_qigua()` 梅花易数日期起卦
+    - `meihua_to_hexagram_encoding()` 梅花→六爻编码桥接
+    - `coin_toss_qigua()` / `coin_toss_random()` / `coin_toss_interactive_input()` 掷铜钱起卦
+    - `qigua_full_pailian()` 起卦→六爻排盘一站式
+    - `encoding_to_display()` 编码→爻象显示
+  - liuyao.py 新增卦名输入函数
+    - `arrange_hexagram_by_name()` 卦名一键排盘
+    - `deduce_moving_lines()` / `get_hexagram_binary()` / `binary_to_hexagram_encoding()`
+  - SKILL.MD §2 新增双入口协议 + §3 起卦路径分支
+  - 端到端联调通过：梅花起卦→六爻→象展开 + 掷铜钱→六爻→象展开
 
 - **v0.2.6** (2026-05-17): 文档优化 + 多平台兼容声明。
   - config.json triggers 改为 array 格式（兼容 ClawHub 解析器）
