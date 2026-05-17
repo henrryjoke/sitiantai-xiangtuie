@@ -1,9 +1,21 @@
 ---
 name: jiegua
+name_en: hexagram-interpreter
 description: |
   解卦——四象合参·象推演系统。基于梅花易数+六爻为主体、六壬/奇门为辅助触发、
   类象知识库展开的符号推演 Skill。不做吉凶判断，展开丰富可能性，启发用户自主决策。
   触发词：解卦、象推演、四象合参、算一卦、问卦、卜问、分析这事、推演一下。
+description_en: |
+  Hexagram Interpreter — Four-Element Symbol Deduction System.
+  Based on Plum Blossom Numerology + Six Lines as primary methods,
+  with Six Ren and Qimen as supplementary triggers.
+  Uses a symbol knowledge base to expand possibilities instead of making fortune-telling verdicts.
+  Trigger words: divination, iching, hexagram reading, symbolic deduction.
+triggers:
+  zh: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一下", "象推演", "四象合参"]
+  en: ["divination", "iching", "hexagram reading", "fortune reading", "symbolic deduction", "ask the oracle"]
+  fr: ["divination", "lecture d'hexagramme", "I Ching", "tirage de hexagramme"]
+  es: ["adivinación", "I Ching", "hexagrama", "lectura de hexagramas"]
 ---
 
 # 四象合参 · 象推演 Skill
@@ -376,3 +388,58 @@ data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
   - 新增：反馈引导、风格记忆、验证闭环、自我评估
   - TODO: 推理链与推理示例（后续深入讨论）
   - TODO: 类象知识库建设计划执行
+
+---
+
+## 12. 输出语言自适应 / Output Language Adaptation
+
+### 12.1 语言检测
+1. 检测用户输入的主要语言（中文/英文/法文/西班牙文/其他）
+2. 若检测到非中文 → 使用对应语言输出
+3. 若无法检测 → 默认跟随用户最近一次使用的语言
+4. 若无历史 → 尝试检测系统 locale
+
+### 12.2 多语言输出模板
+- 中文用户 → 全中文输出
+- 英文用户 → 全英文输出，包含英文术语对照
+- 法文/西班牙文用户 → 基础英文输出 + 术语表
+
+### 12.3 核心术语保留策略
+以下核心概念保留中文原文并附翻译：
+
+| 中文 | 英文 | 法文 | 西班牙文 |
+|---|---|---|---|
+| 解卦 | Hexagram Interpretation | Interprétation d'hexagramme | Interpretación de hexagrama |
+| 梅花易数 | Plum Blossom Numerology | Numération aux fleurs de prunier | Numerología de ciruelo |
+| 六爻 | Six Lines | Six lignes | Seis líneas |
+| 八卦 | Eight Trigrams | Huit trigrammes | Ocho trigramas |
+| 六十四卦 | 64 Hexagrams | 64 hexagrammes | 64 hexagramas |
+| 干支 | Ganzhi (Heavenly Stems & Earthly Branches) | Tiges célestes et Rameaux terrestres | Tallos celestes y Ramas terrestres |
+| 五行 | Five Elements (Wuxing) | Cinq éléments | Cinco elementos |
+| 象推演 | Symbolic Deduction | Déduction symbolique | Deducción simbólica |
+| 类象 | Symbol Classification | Classification des symboles | Clasificación de símbolos |
+| 体卦 | Body Trigram | Trigramme du corps | Trigrama del cuerpo |
+| 用卦 | Application Trigram | Trigramme d'application | Trigrama de aplicación |
+| 世爻 | Self Line | Ligne du soi | Línea del soi |
+| 应爻 | Response Line | Ligne de réponse | Línea de respuesta |
+| 六亲 | Six Kin | Six parents | Seis parientes |
+| 六神 | Six Spirits | Six esprits | Seis espíritus |
+
+### 12.4 输出格式要求
+无论何种语言，输出结构保持一致：
+- 📋 Hexagram Overview / 卦象总览 / Aperçu de l'hexagramme / Vista general del hexagrama
+- 🔍 Symbol Expansion / 象展开 / Expansion des symboles / Expansión de símbolos
+- 📖 Possibility Deduction / 可能性推演 / Déduction des possibilités / Deducción de posibilidades
+- 🔗 Supplementary Perspective / 补充视角 / Perspective supplémentaire / Perspectiva suplementaria
+- 💡 Inspiring Questions / 启发提问 / Questions inspirantes / Preguntas inspiradoras |
+
+---
+
+## 13. 版本记录（按时间倒序）
+
+- **v0.2.4** (2026-05-17): i18n 国际化优化。
+  - config.json 添加 name_en、description_en、categories_en、多语言 triggers
+  - SKILL.md frontmatter 添加多语言字段
+  - SKILL.md 添加术语对照表和语言自适应说明（§12）
+  - README.md 双语化（中文/英文）
+  - 版本升级至 v0.2.4
