@@ -1,21 +1,9 @@
 ---
 name: jiegua
 name_en: hexagram-interpreter
-description: |
-  解卦——四象合参·象推演系统。基于梅花易数+六爻为主体、六壬/奇门为辅助触发、
-  类象知识库展开的符号推演 Skill。不做吉凶判断，展开丰富可能性，启发用户自主决策。
-  触发词：解卦、象推演、四象合参、算一卦、问卦、卜问、分析这事、推演一下。
-description_en: |
-  Hexagram Interpreter — Four-Element Symbol Deduction System.
-  Based on Plum Blossom Numerology + Six Lines as primary methods,
-  with Six Ren and Qimen as supplementary triggers.
-  Uses a symbol knowledge base to expand possibilities instead of making fortune-telling verdicts.
-  Trigger words: divination, iching, hexagram reading, symbolic deduction.
-triggers:
-  zh: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一下", "象推演", "四象合参"]
-  en: ["divination", "iching", "hexagram reading", "fortune reading", "symbolic deduction", "ask the oracle"]
-  fr: ["divination", "lecture d'hexagramme", "I Ching", "tirage de hexagramme"]
-  es: ["adivinación", "I Ching", "hexagrama", "lectura de hexagramas"]
+description: "解卦——四象合参·象推演系统。基于梅花易数+六爻为主体、六壬/奇门为辅助触发、类象知识库展开的符号推演 Skill。不做吉凶判断，展开丰富可能性，启发用户自主决策。"
+description_en: "Hexagram Interpreter — Four-Element Symbol Deduction System. Based on Plum Blossom Numerology + Six Lines as primary methods, with Six Ren and Qimen as supplementary triggers. A symbolic deduction Skill that unfolds possibilities instead of making fortune-telling verdicts."
+triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一下", "象推演", "四象合参", "divination", "iching", "hexagram reading", "symbolic deduction"]
 ---
 
 # 四象合参 · 象推演 Skill
