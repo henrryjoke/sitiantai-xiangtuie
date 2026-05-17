@@ -4,39 +4,22 @@
 
 ---
 
-## [v0.4.0] - 2026-05-17
+## [v0.4.1] - 2026-05-17
 
-### 🔒 IP 保护分层重构
+### 🔥 Hotfix：修复 ClawHub 发布版本无法使用的问题
 
-根据 IP 分层保护策略对仓库内容进行重构：
+#### Fixed / 修复
 
-**开放层（MIT-0）**：
-- `SKILL.md` / `README.md` / `API.md` / `config.json` → 框架文档以 MIT-0 许可证公开
-- LICENSE → 从标准 MIT 改为 MIT-0（No Attribution），极致开源引流
-
-**数据层（CC BY-NC-SA 4.0）**：
-- `data/xiang/` 的 28 个类象知识库 JSON 保持 CC BY-NC-SA 4.0
-- LICENSE-DATA 作用域明确：仅覆盖 `data/xiang/`
-
-**算法层（不开源）**：
-- `scripts/` 目录已从仓库中移除
-- 新增 `API.md` 提供算法能力的 API 调用文档
-- 核心算法（旺衰精算、象展开权重、四象合参融合）仅通过 API 提供服务
+- **`scripts/qigua.py` 编码映射错误**：
+  - `TRIGRAM_BINARY` 中 `巽` 的二进制值从错误的 `[0,0,1]` 修正为 `[0,1,1]`
+  - `_gua_name_to_encoding()` 中移除了对 `TRIGRAM_BINARY` 的 `reversed()` 调用（二进制已经是初→上顺序，不应反转）
+  - **以上两处 bug 导致梅花起卦的卦象编码全部偏移，六爻排盘结果错误**
+- **删除 `skill/SKILL.MD`（文件名大写错误）**：该文件导致 ClawHub 安装时 skill 加载失败，已删除整个 `skill/` 目录
+- **`_meta.json` 版本号（0.2.3）与 `config.json`（0.3.0）不一致**：统一修正为 0.4.1
 
 #### Changed / 变更
 
-- **SKILL.md**：所有 `scripts/xxx.py` 引用替换为 API 接口描述
-- **SKILL.md §10**：技术架构从"Skill + Python 脚本"改为"Skill + API 服务"
-- **README.md**：项目结构、许可证声明、专业用户配置全面更新
-- **config.json**：version → 0.4.0，license 字段分层声明（MIT-0 / CC BY-NC-SA 4.0 / Proprietary）
-
-#### Removed / 移除
-
-- **`scripts/` 目录**：7 个算法脚本（calendar.py / meihua.py / liuyao.py / liuren.py / qimen.py / xiang_query.py / qigua.py）从仓库中移除
-
-#### Added / 新增
-
-- **`API.md`**：算法 API 接口文档（历法 / 梅花 / 六爻 / 类象展开 / 综合推演 / 六壬 / 奇门）
+- **ClawHub 发布包结构修正**：移除冗余的 `skill/` 目录，确保 `SKILL.md` 在根目录且大小写正确
 
 ---
 
