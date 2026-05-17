@@ -4,6 +4,33 @@
 
 ---
 
+## [v0.2.6] - 2026-05-17
+
+### 🎯 文档优化 + 多平台兼容声明
+
+#### Added / 新增
+
+- **config.json**: triggers 改为 array 格式（兼容 ClawHub 解析器）；新增 description_fr、description_es
+- **README.md**: 全面重写，面向多平台非专业用户
+- **SKILL.md**: 新增 §14 新人引导与起卦方式说明
+- **SKILL.md frontmatter**: 更新多语言 triggers 和描述
+
+#### Changed / 变更
+
+- **README.md** 重构结构：
+  - 🎯 适用范围：明确列出 WorkBuddy/OpenClaw/Hermes/QClaw/ArcLaw 及自媒体平台 AI Agent
+  - ⚡ 30 秒快速安装：ClawHub 链接安装 + CLI 命令
+  - 🗣️ 使用示例：完整对话流程
+  - ⚠️ 起卦方式说明：日期起卦 vs 人工起卦差异（进阶功能支持范围）
+  - 🖥️ 专业用户配置：环境要求、本地安装、项目结构
+- **SKILL.md** 新增：
+  - §14.1 新人引导规则：首次使用自动引导话术
+  - §14.2 起卦推演规则：两种方式支持的功能范围
+  - §14.3 输入检测逻辑：自动判断起卦方式
+  - §14.4 多平台兼容说明
+
+---
+
 ## [v0.2.0] - 2026-05-16
 
 ### 🎉 重大更新：Phase 1 全部完成

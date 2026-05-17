@@ -3,7 +3,9 @@ name: jiegua
 name_en: hexagram-interpreter
 description: "解卦——四象合参·象推演系统。基于梅花易数+六爻为主体、六壬/奇门为辅助触发、类象知识库展开的符号推演 Skill。不做吉凶判断，展开丰富可能性，启发用户自主决策。"
 description_en: "Hexagram Interpreter — Four-Element Symbol Deduction System. Based on Plum Blossom Numerology + Six Lines as primary methods, with Six Ren and Qimen as supplementary triggers. A symbolic deduction Skill that unfolds possibilities instead of making fortune-telling verdicts."
-triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一下", "象推演", "四象合参", "divination", "iching", "hexagram reading", "symbolic deduction"]
+description_fr: "Interprète d'hexagramme — système de déduction symbolique à synthèse quadruple. Basé sur la numérologie des fleurs de prunier et les six lignes, avec Six Ren et Qi Men comme déclencheurs auxiliaires. Déploie des possibilités sans porter de jugement."
+description_es: "Intérprete de hexagramas — sistema de deducción simbólica de síntesis cuádruple. Basado en la numerología de ciruela y seis líneas, con Seis Ren y Qi Men como disparadores auxiliares. Despliega posibilidades sin emitir veredictos."
+triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一下", "象推演", "四象合参", "divination", "iching", "hexagram reading", "fortune reading", "symbolic deduction", "lecture d'hexagramme", "I Ching", "adivinación", "hexagrama", "lectura de hexagramas"]
 ---
 
 # 四象合参 · 象推演 Skill
@@ -425,9 +427,114 @@ data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
 
 ## 13. 版本记录（按时间倒序）
 
+- **v0.2.6** (2026-05-17): 文档优化 + 多平台兼容声明。
+  - config.json triggers 改为 array 格式（兼容 ClawHub 解析器）
+  - config.json 新增 description_fr、description_es
+  - README.md 全面重写：面向多平台非专业用户 + 专业用户配置 + 起卦方式差异说明
+  - SKILL.md 新增 §14 新人引导与起卦方式说明
+  - SKILL.md frontmatter 更新多语言 triggers 和描述
+
 - **v0.2.4** (2026-05-17): i18n 国际化优化。
   - config.json 添加 name_en、description_en、categories_en、多语言 triggers
   - SKILL.md frontmatter 添加多语言字段
   - SKILL.md 添加术语对照表和语言自适应说明（§12）
   - README.md 双语化（中文/英文）
   - 版本升级至 v0.2.4
+
+---
+
+## 14. ★ 新人引导与起卦方式说明
+
+### 14.1 新人引导规则
+
+当检测到以下情况时，AI 应主动提供使用引导：
+- 用户第一次触发本 Skill 时
+- 用户说"怎么用""怎么操作""how to use""如何使用"
+- 用户表示"不会用""第一次用"
+
+**引导话术模板**：
+
+```
+欢迎使用「解卦·象推演」系统！这里是一个易学符号推演助手。
+
+📌 怎么开始？
+只需要说"算一卦"或"帮我推演一下xxx"，我会根据当前时间自动计算卦象，为你展开推演。
+
+📌 两种使用方式：
+1️⃣ 【最简单的】直接说你想了解的事情——比如"算一卦，看看这个合作项目"
+   我会根据当前日期自动起卦，并支持进阶分析（大六壬/奇门遁甲）
+
+2️⃣ 【如果你已经有卦象】告诉我你得到的卦——比如"我掷铜钱得到了风天小畜卦，第3爻动"
+   我会基于你的卦象进行推演，但不支持大六壬/奇门等进阶分析
+
+📌 重要原则
+• 我展开可能性，不做吉凶断言
+• 最终判断由你自己做出
+• 欢迎反馈推演准确性，帮助我持续优化
+```
+
+### 14.2 起卦方式推演规则
+
+#### 方式 A：日期自动起卦（推荐）
+
+由 Skill 根据当前系统时间自动计算卦象（通过 scripts/calendar.py + meihua.py）。
+
+**支持完整推演流程**：
+- ✅ Layer 0-2 自动执行（干支历法 + 梅花易数 + 六爻纳甲）
+- ✅ Layer 5 类象展开（28 符号知识库）
+- ✅ Layer 6a 综合推演
+- ✅ **Layer 3 大六壬**（用户触发，需精确时间数据）
+- ✅ **Layer 4 奇门遁甲**（用户触发，需精确时间数据）
+
+**触发方式**：
+```
+📊 基础推演已生成。需要更多角度吗？
+  → 想了解发展脉络？ [触发大六壬]
+  → 想了解空间方位？ [触发奇门遁甲]
+  → 已经够了       [跳过]
+```
+
+#### 方式 B：用户提供卦象（人工起卦）
+
+用户自行通过掷铜钱、数字、外应等方式获得卦象后输入。
+
+**仅支持部分流程**：
+- ✅ Layer 2 六爻纳甲（基于用户提供的卦象）
+- ✅ Layer 5 类象展开
+- ✅ Layer 6a 综合推演
+- ❌ Layer 0 干支历法（无法自动计算，因缺少精准时间数据关联的起卦逻辑）
+- ❌ **Layer 3 大六壬**（需要精确时间数据，不可用）
+- ❌ **Layer 4 奇门遁甲**（需要精确时间/空间数据，不可用）
+
+**规则**：当用户以人工起卦方式输入时，完成基础推演后**不应提示**用户使用六壬/奇门进阶功能。
+
+### 14.3 输入检测逻辑
+
+```python
+# 检测用户输入是否包含自定义卦象
+is_manual_cast = 用户输入包含以下特征之一：
+  - 明确的卦名（如"风天小畜""火风鼎"）
+  - 明确的上下卦（如"上巽下乾"）
+  - 明确的变爻信息（如"第3爻动""三爻动"）
+  - 明确的铜钱结果（如"三个背面""两正一反"）
+  - 明确的数字起卦（如"用数字3和8起卦"）
+
+if is_manual_cast:
+  推演流程 = 方式B（跳过Layer 0-1，仅执行Layer 2+5+6）
+  不提供六壬/奇门触发选项
+else:
+  推演流程 = 方式A（完整Layer 0-6）
+  基础推演完成后提供六壬/奇门触发选项
+```
+
+### 14.4 多平台兼容说明
+
+本 Skill 遵循标准 OpenClaw Skill 格式，可在以下平台使用：
+- WorkBuddy（腾讯小龙虾）
+- OpenClaw
+- Hermes Agent
+- QClaw
+- ArcLaw
+- 任何支持 OpenClaw Skill 格式的 AI Agent 平台
+
+无需进行平台特定适配。各平台用户安装后，直接使用触发词即可启用。
