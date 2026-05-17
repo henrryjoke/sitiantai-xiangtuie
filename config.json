@@ -1,12 +1,12 @@
-﻿{
-  "name": "四象合参 象推演",
+{
+  "name": "解卦",
   "slug": "sitiantai-xiangtuie",
-  "description": "基于梅花易数和六爻为主体、六壬和奇门为辅助的四象合参符号推演系统。不做吉凶判断，展开丰富可能性，启发用户自主决策。触发词：象推演、算一卦、问卦、推演一下。",
-  "version": "0.2.0",
+  "description": "解卦——四象合参·象推演系统。基于梅花易数+六爻为主体、六壬奇门为辅助触发、类象知识库展开的符号推演 Skill。不做吉凶判断，展开丰富可能性，启发用户自主决策。触发词：解卦、象推演、四象合参、算一卦、问卦、卜问、分析这事、推演一下。",
+  "version": "0.2.3",
   "homepage": "https://github.com/henrryjoke/sitiantai-xiangtuie",
   "categories": ["AI增强", "知识管理", "多媒体/垂直"],
-  "tags": ["易学", "梅花易数", "六爻", "奇门遁甲", "大六壬", "象推演", "四象合参"],
-  "triggers": ["象推演", "四象合参", "算一卦", "问卦", "分析这事", "推演一下"],
+  "tags": ["divination", "iching", "meihua", "liuyao", "qimen", "daliuren", "xiangtuie", "jiegua"],
+  "triggers": ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一下", "象推演", "四象合参"],
   "dependencies": ["swisseph", "lunar-python"],
   "author": {"name": "henrryjoke", "email": ""},
   "license": {"code": "MIT", "data": "CC BY-NC-SA 4.0"}
