@@ -136,61 +136,41 @@ clawhub skill install sitiantai-xiangtuie
 
 ## 🖥️ 专业用户配置说明
 
-如果你希望在本地运行或进行二次开发，以下是技术配置说明。
+### API 集成
 
-### 前置条件
+本系统的核心算法（旺衰精算、象展开权重、四象合参融合）通过 API 提供服务，不在此仓库中公开源码。
 
-| 依赖 | 版本要求 | 说明 |
-|------|---------|------|
-| Python | 3.8+ | 核心算法脚本 |
-| Swiss Ephemeris | 2.10+ | 天文历法计算 |
-| lunar-python | 1.0.4+ | 农历/节气计算 |
+详见 [API.md](./API.md) 了解完整的接口文档和使用方式。
 
-### 本地安装
+### 本地数据使用
 
-```bash
-# 克隆仓库
-git clone https://github.com/henrryjoke/sitiantai-xiangtuie.git
-cd sitiantai-xiangtuie
+类象知识库（`data/xiang/` 下的 28 个 JSON 文件）以 CC BY-NC-SA 4.0 许可证公开，可直接用于研究和非商业项目。使用方法：
 
-# 安装 Python 依赖
-pip install -r requirements.txt
+```python
+import json
+import os
 
-# 安装 Swiss Ephemeris（Windows）
-# 下载 sweph.dll 放入 scripts/ 目录
+xiang_dir = "data/xiang"
+for category in os.listdir(xiang_dir):
+    for filename in os.listdir(f"{xiang_dir}/{category}"):
+        with open(f"{xiang_dir}/{category}/{filename}") as f:
+            data = json.load(f)
+            print(f"{data['symbol']}: {data['core_properties']}")
 ```
 
 ### 项目结构
 
 ```
 sitiantai-xiangtuie/
-├── scripts/                  # 6 个核心算法脚本
-│   ├── calendar.py           #   干支历法（Swiss Ephemeris）
-│   ├── meihua.py             #   梅花易数（时间起卦）
-│   ├── liuyao.py             #   六爻纳甲
-│   ├── liuren.py             #   大六壬（9 门）
-│   ├── qimen.py              #   奇门遁甲（5 层）
-│   └── xiang_query.py        #   类象查询 SDK
-├── data/xiang/               # 28 个类象知识库 JSON
+├── API.md                   # API 接口文档
+├── data/xiang/              # 28 个类象知识库 JSON
 ├── skill/
-│   └── SKILL.MD              #   AI Skill 编排文件
-├── config.json               #   技能元数据
-├── SKILL.md                  #   根目录 Skill 文件
-├── CHANGELOG.md              #   更新日志
-├── LICENSE                   #   MIT（脚本）
-└── LICENSE-DATA              #   CC BY-NC-SA 4.0（数据）
-```
-
-### 技术架构（可选阅读）
-
-```
-Layer 0: 干支历法 (calendar.py)      → 八字·节气·旬空
-Layer 1: 梅花易数 (meihua.py)        → 主体起卦
-Layer 2: 六爻纳甲 (liuyao.py)        → 主体排盘
-Layer 3: 大六壬   (liuren.py)        → ⚡日期起卦可触发
-Layer 4: 奇门遁甲 (qimen.py)         → ⚡日期起卦可触发
-Layer 5: 象展开   (xiang_query.py)   → 28 JSON 类象知识库
-Layer 6: 综合推演                    → 四象合参 + 启发提问
+│   └── SKILL.MD             # AI Skill 编排文件
+├── config.json              # 技能元数据
+├── SKILL.md                 # 根目录 Skill 文件
+├── CHANGELOG.md             # 更新日志
+├── LICENSE                  # MIT-0（框架与文档）
+└── LICENSE-DATA             # CC BY-NC-SA 4.0（数据）
 ```
 
 ---
@@ -199,9 +179,9 @@ Layer 6: 综合推演                    → 四象合参 + 启发提问
 
 | 部分 | 许可证 | 说明 |
 |------|--------|------|
-| `scripts/`（算法代码） | MIT | 自由使用、修改、商用 |
-| `data/xiang/`（类象知识库） | CC BY-NC-SA 4.0 | 署名-非商业-相同方式共享 |
-| `skill/SKILL.MD`（推理规则） | CC BY-NC-SA 4.0 | 同上 |
+| `SKILL.md` / `API.md` / `README.md` / `config.json`（框架与文档） | **MIT-0** | 无需署名，极致开源，引流 |
+| `data/xiang/`（类象知识库） | **CC BY-NC-SA 4.0** | 署名-非商业-相同方式共享 |
+| 核心算法（旺衰精算/象展开权重/四象合参融合） | **不开源** | 仅通过 API 提供服务 |
 
 ---
 
@@ -261,12 +241,10 @@ Say these trigger words in your conversation:
 
 2. **Manual casting** — If you already have a hexagram (coin toss, numbers, external signs), describe it to AI. **No advanced features** (Liu Ren / Qi Men not supported due to missing temporal data).
 
-### For Developers
+### License
 
-```bash
-git clone https://github.com/henrryjoke/sitiantai-xiangtuie.git
-cd sitiantai-xiangtuie
-pip install -r requirements.txt
-```
-
-**License**: MIT (scripts) | CC BY-NC-SA 4.0 (data & SKILL.md)
+| Part | License | Note |
+|------|---------|------|
+| Framework & Docs (`SKILL.md`, `API.md`, etc.) | **MIT-0** | Open source, no attribution required |
+| Data (`data/xiang/`) | **CC BY-NC-SA 4.0** | Attribution-NonCommercial-ShareAlike |
+| Core algorithms | **Proprietary** | API only, not open source |

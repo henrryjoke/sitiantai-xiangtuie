@@ -4,6 +4,42 @@
 
 ---
 
+## [v0.4.0] - 2026-05-17
+
+### 🔒 IP 保护分层重构
+
+根据 IP 分层保护策略对仓库内容进行重构：
+
+**开放层（MIT-0）**：
+- `SKILL.md` / `README.md` / `API.md` / `config.json` → 框架文档以 MIT-0 许可证公开
+- LICENSE → 从标准 MIT 改为 MIT-0（No Attribution），极致开源引流
+
+**数据层（CC BY-NC-SA 4.0）**：
+- `data/xiang/` 的 28 个类象知识库 JSON 保持 CC BY-NC-SA 4.0
+- LICENSE-DATA 作用域明确：仅覆盖 `data/xiang/`
+
+**算法层（不开源）**：
+- `scripts/` 目录已从仓库中移除
+- 新增 `API.md` 提供算法能力的 API 调用文档
+- 核心算法（旺衰精算、象展开权重、四象合参融合）仅通过 API 提供服务
+
+#### Changed / 变更
+
+- **SKILL.md**：所有 `scripts/xxx.py` 引用替换为 API 接口描述
+- **SKILL.md §10**：技术架构从"Skill + Python 脚本"改为"Skill + API 服务"
+- **README.md**：项目结构、许可证声明、专业用户配置全面更新
+- **config.json**：version → 0.4.0，license 字段分层声明（MIT-0 / CC BY-NC-SA 4.0 / Proprietary）
+
+#### Removed / 移除
+
+- **`scripts/` 目录**：7 个算法脚本（calendar.py / meihua.py / liuyao.py / liuren.py / qimen.py / xiang_query.py / qigua.py）从仓库中移除
+
+#### Added / 新增
+
+- **`API.md`**：算法 API 接口文档（历法 / 梅花 / 六爻 / 类象展开 / 综合推演 / 六壬 / 奇门）
+
+---
+
 ## [v0.2.6] - 2026-05-17
 
 ### 🎯 文档优化 + 多平台兼容声明

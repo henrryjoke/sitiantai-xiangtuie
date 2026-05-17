@@ -40,7 +40,7 @@ triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一
 
 ---
 
-## 3. 推演工作流（Phase 1: Skill + 脚本）
+## 3. 推演工作流（Phase 1: Skill + API）
 
 ### 第零步：信息确认
 若用户输入不完整（缺时间/事项），先引导补充。
@@ -58,7 +58,7 @@ triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一
 - 旬空、月建
 
 ### 第二步：Layer 1 — 梅花易数（自动执行）
-调用 `scripts/meihua.py::compute_meihua(year, month, day, hour)`
+调用历法 API 接口计算梅花易数起卦结果。
 
 **输出字段**：
 ```python
@@ -77,7 +77,7 @@ triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一
 **辅助函数**：`gua_to_lines(上卦名, 下卦名) → [1-4]*6` 将卦名转为六爻数字编码供六爻模块使用。
 
 ### 第三步：Layer 2 — 六爻纳甲（自动执行）
-调用 `scripts/liuyao.py::arrange_hexagram(六爻, datetime, 事项)`
+调用 API 六爻纳甲接口，传入卦象编码、时间、事项。
 
 **输出字段**：
 ```python
@@ -98,26 +98,23 @@ triggers: ["解卦", "算一卦", "问卦", "卜问", "分析这事", "推演一
 ```
 
 ### 第四步：Layer 5 — ★ 象展开（核心）
-调用 `scripts/xiang_query.py::XiangQuery` SDK，对 Layer 1+2 输出的每一个关键符号展开为丰富语义：
+调用 API 类象展开接口，对 Layer 1+2 输出的每一个关键符号展开为丰富语义：
 
-**SDK 核心 API**：
+**API 核心方法**：
 ```python
-from xiang_query import XiangQuery
-q = XiangQuery()
-
 # 精确查询：符号 + 语境 + 维度
-q.query("妻财", context="career", dimension="person")
+GET /xiang/query?symbol=妻财&context=career&dimension=person
 # → {"symbol":"妻财", "context":"career", "result":{"person":[...]}}
 
 # 人类可读展开
-q.expand_full("妻财", context="career")
+GET /xiang/expand?symbol=妻财&context=career
 # → 带格式的多行文本
 
 # 批量查询
-q.multi_query(["乾", "巽", "官鬼"], context="career")
+GET /xiang/multi?symbols=乾,巽,官鬼&context=career
 
 # 五行组合
-q.get_wuxing_combo(["乾", "巽"])
+GET /xiang/wuxing?symbols=乾,巽
 # → {"乾": "金", "巽": "木"}
 ```
 
@@ -314,7 +311,7 @@ data/xiang/
 }
 ```
 
-### 9.2 SDK 接口（scripts/xiang_query.py）
+### 9.2 API 接口
 
 | 方法 | 参数 | 返回 | 说明 |
 |---|---|---|---|
@@ -337,15 +334,15 @@ data/xiang/
 
 ## 10. 技术架构
 
-### Phase 1（当前）：Skill + Python 脚本 ✅ 全部完成
+### Phase 1（当前）：Skill + API 服务 ✅
 ```
-用户 → AI Skill（象推演）→ Python 脚本层
-  ├── scripts/calendar.py      # 历法精算+八字 ✅
-  ├── scripts/meihua.py        # 梅花易数（时间起卦/体用/错综） ✅
-  ├── scripts/liuyao.py        # 六爻纳甲（本变/世应/六亲/六神/旺衰） ✅
-  ├── scripts/liuren.py        # 大六壬（天地盘/四课/三传/贵人） ✅
-  ├── scripts/qimen.py         # 奇门遁甲（地盘/天盘/八门/九星/八神） ✅
-  └── scripts/xiang_query.py   # 类象查询引擎（28符号→6类别→多语境展开） ✅
+用户 → AI Skill（象推演）→ API 服务层
+  ├── /api/calendar      # 历法精算+八字 ✅
+  ├── /api/meihua        # 梅花易数（时间起卦/体用/错综） ✅
+  ├── /api/liuyao        # 六爻纳甲（本变/世应/六亲/六神/旺衰） ✅
+  ├── /api/liuren        # 大六壬（天地盘/四课/三传/贵人） ✅
+  ├── /api/qimen         # 奇门遁甲（地盘/天盘/八门/九星/八神） ✅
+  └── /api/xiang         # 类象查询引擎（28符号→6类别→多语境展开） ✅
 
 data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
   ├── bagua/       (8)  qian kun zhen xun kan li gen dui
@@ -364,20 +361,18 @@ data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
 ## 11. 版本记录
 
 - **v0.2.0** (2026-05-15): Phase 1 全部完成。
-  - 新增 scripts/xiang_query.py（类象查询 SDK）
-  - 新增 data/xiang/ 28 JSON 文件（6 类别全覆盖）
+  - 新增类象查询 API 和 28 类象知识库 JSON
   - Phase 1.1-1.4 类象知识库建设完成
-  - 端到端联调通过（梅花→六爻→类象展开→推演输出）
-  - 更新工作流 Step 2-4 包含具体函数调用和 SDK API
+  - 端到端联调通过（历法→梅花→六爻→类象展开→推演输出）
+  - 更新工作流 Step 2-4 包含具体 API 调用说明
   - 更新 §9 知识库结构为实际 28-JSON 6-类别布局
-  - 更新 §10 技术架构，标记全部脚本完成
+  - 更新 §10 技术架构，标记全部 API 完成
 
 - **v0.1.0** (2026-05-15): 初始 Skill 框架。
   - Layer 0-2 自动执行 + Layer 5 象展开 + Layer 6a 综合推演
   - 六壬/奇门改为用户触发
   - 新增：反馈引导、风格记忆、验证闭环、自我评估
   - TODO: 推理链与推理示例（后续深入讨论）
-  - TODO: 类象知识库建设计划执行
 
 ---
 
@@ -445,6 +440,10 @@ data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
 
 ## 14. ★ 新人引导与起卦方式说明
 
+---
+
+## 14. ★ 新人引导与起卦方式说明
+
 ### 14.1 新人引导规则
 
 当检测到以下情况时，AI 应主动提供使用引导：
@@ -477,7 +476,7 @@ data/xiang/ 类象知识库 ✅ 28 JSON / 6 类别
 
 #### 方式 A：日期自动起卦（推荐）
 
-由 Skill 根据当前系统时间自动计算卦象（通过 scripts/calendar.py + meihua.py）。
+由 Skill 根据当前系统时间自动计算卦象（通过历法 API 接口）。
 
 **支持完整推演流程**：
 - ✅ Layer 0-2 自动执行（干支历法 + 梅花易数 + 六爻纳甲）
