@@ -4,6 +4,74 @@
 
 ---
 
+## [v0.7.0] - 2026-05-19
+
+### 🔧 排盘核心全面修复：纳甲/六亲/卦宫/编码体系
+
+六爻排盘系统存在自最初版本以来的多项基础数据与算法错误，导致排盘结果与正统京房纳甲体系不符。
+本版本对排盘核心进行了系统性审查和全面修复，经验证水地比→地水师排盘结果与标准排盘图片完全一致。
+
+#### Fixed / 修复
+
+- **`scripts/liuyao.py` TRIGRAM_TO_NAJIA 映射错误（6/8 错）**：
+  - 原6个八卦→卦宫映射与 `_hex_to_binary` 输出约定不一致
+  - 修正为：`(1,1,1)→乾宫, (1,1,0)→兑宫, (1,0,1)→离宫, (1,0,0)→震宫, (0,1,1)→巽宫, (0,1,0)→坎宫, (0,0,1)→艮宫, (0,0,0)→坤宫`
+
+- **`scripts/liuyao.py` HEXAGRAM_EARTHLY_BRANCH 纳甲数据完全错误**：
+  - 原表仅12个地支机械分配到8宫，不符合京房纳甲体系
+  - 替换为 `NAJIA_INNER`（内卦纳甲）+ `NAJIA_OUTER`（外卦纳甲），按上下卦各自八纯卦纳甲
+
+- **`scripts/liuyao.py` 六亲以世爻五行为本（错误）→ 以卦宫五行为本（正确）**：
+  - 新增 `PALACE_WUXING` 字典（乾宫金、坤宫土、震宫木、巽宫木、坎宫水、离宫火、艮宫土、兑宫金）
+  - 六亲计算统一使用 `palace_wx`（卦宫五行）而非 `shi_wx`（世爻五行）
+
+- **`scripts/liuyao.py` 变卦六亲以变卦世爻五行为本（错误）→ 以本卦卦宫五行为本（正确）**：
+  - 变卦六亲同样以本卦卦宫五行为"我"（传统六爻标准排法）
+
+- **`scripts/liuyao.py` HEXAGRAMS 64卦数据重新生成**：
+  - 按八宫世系（本宫→一世→二世→三世→四世→五世→游魂→归魂）程序化生成
+  - 修正卦名、世应位置、卦类型
+  - 修正 `_hex_to_binary` 输出与 HEXAGRAMS key 约定一致（1=阳, 0=阴）
+
+- **`scripts/liuyao.py` _hex_to_binary 阴阳方向与 HEXAGRAMS key 不一致**：
+  - 修正输出约定为 `1 if x in [2,3] else 0`（1=阳, 0=阴），与 HEXAGRAMS key 一致
+
+- **`scripts/liuyao.py` _init_hexagram_map 多项错误**：
+  - 卦序错误：`up_bin + down_bin` → 修正为 `down_bin + up_bin`（从初爻到上爻）
+  - 巽卦硬编码：`[0,0,1]` → 修正为 `[0,1,1]`
+  - 改为直接引用 `TRIGRAM_BINARY`，消除硬编码
+
+- **`scripts/liuyao.py` deduce_moving_lines 索引方向混乱**：
+  - 原返回 `5-i`（初=5,上=0）→ 修正为返回 `i`（初=0,上=5）
+
+- **`scripts/liuyao.py` _generate_changed_hexagram 变爻方向反转**：
+  - fallback 分支中 `3→2, 4→1` → 修正为 `3→1（老阳→少阴）, 4→2（老阴→少阳）`
+
+- **`scripts/liuyao.py` line_names/line_symbols 标签与符号错误**：
+  - `{3:"纯阳",4:"纯阴"}` → 修正为 `{3:"老阳",4:"老阴"}`
+  - 动爻符号修正：`3:"----- ○", 4:"-- -- ×"`
+
+- **`scripts/meihua.py` BA_GUA 坤卦编号 0 导致卦名查找失败**：
+  - `{0:"坤"}` → `{8:"坤"}`，避免模运算结果0导致 `_GUA_HU` 查表失败
+  - `compute_meihua` 中 `% 8` 结果为0时映射到8（坤）
+
+- **`scripts/qigua.py` meihua_date_qigua 动爻索引计算错误**：
+  - `idx = 6 - change_line` → 修正为 `idx = change_line - 1`
+
+- **`scripts/qigua.py` COIN_TO_LINE 注释补充**：
+  - 明确标注每个结果的阴阳爻类型
+
+- **`scripts/liuyao.py` arrange_hexagram_by_name 动爻索引映射错误**：
+  - `enc_idx = 5 - idx` → 修正为 `enc_idx = idx`
+
+#### Changed / 变更
+
+- 编码体系统一化：`1=少阴(阴爻静), 2=少阳(阳爻静), 3=老阳(阳爻动), 4=老阴(阴爻动)`
+- `_hex_to_binary` 输出统一：`1=阳, 0=阴`
+- `binary_to_hexagram_encoding` 保持一致：`1(阳)→2(少阳), 0(阴)→1(少阴)`
+
+---
+
 ## [v0.6.0] - 2026-05-18
 
 ### 🛡️ 核心算法保护：pyarmor 混淆部署

@@ -28,15 +28,36 @@ BRANCH_WUXING = {
 
 LIUSHOU = ["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]
 
-HEXAGRAM_EARTHLY_BRANCH = {
-    "乾宫": ["子","寅","辰","午","申","戌"],
-    "坤宫": ["未","巳","卯","丑","亥","酉"],
-    "震宫": ["子","寅","辰","午","申","戌"],
-    "巽宫": ["丑","亥","酉","未","巳","卯"],
-    "坎宫": ["寅","辰","午","申","戌","子"],
-    "离宫": ["卯","丑","亥","酉","未","巳"],
-    "艮宫": ["辰","午","申","戌","子","寅"],
-    "兑宫": ["巳","卯","丑","亥","酉","未"],
+# ══════════════════════════════════════════════════════════
+# 纳甲地支（六爻核心数据，严格按传统京房纳甲体系）
+# ══════════════════════════════════════════════════════════
+# 内卦纳甲（初爻→三爻，从下往上）
+NAJIA_INNER = {
+    "乾宫": ["子", "寅", "辰"],
+    "坤宫": ["未", "巳", "卯"],
+    "震宫": ["子", "寅", "辰"],
+    "巽宫": ["丑", "亥", "酉"],
+    "坎宫": ["寅", "辰", "午"],
+    "离宫": ["卯", "丑", "亥"],
+    "艮宫": ["辰", "午", "申"],
+    "兑宫": ["巳", "卯", "丑"],
+}
+# 外卦纳甲（四爻→上爻，从下往上）
+NAJIA_OUTER = {
+    "乾宫": ["午", "申", "戌"],
+    "坤宫": ["丑", "亥", "酉"],
+    "震宫": ["午", "申", "戌"],
+    "巽宫": ["未", "巳", "卯"],
+    "坎宫": ["申", "戌", "子"],
+    "离宫": ["酉", "未", "巳"],
+    "艮宫": ["戌", "子", "寅"],
+    "兑宫": ["亥", "酉", "未"],
+}
+
+# 卦宫五行（六亲计算以本卦宫五行为"我"）
+PALACE_WUXING = {
+    "乾宫": "金", "坤宫": "土", "震宫": "木", "巽宫": "木",
+    "坎宫": "水", "离宫": "火", "艮宫": "土", "兑宫": "金",
 }
 
 XUN_START = ["甲子","甲戌","甲申","甲午","甲辰","甲寅"]
@@ -47,10 +68,17 @@ XUN_KONG_MAP = {
 }
 
 
-# Trigram (3-bit tuple) → 纳甲宫名 lookup
+# Trigram (3-bit tuple, _hex_to_binary 输出: 1=阳,0=阴) → 纳甲宫名 lookup
+# 索引顺序：初爻,二爻,三爻（从下往上）
 TRIGRAM_TO_NAJIA = {
-    (1,1,1): "乾宫", (1,1,0): "兑宫", (1,0,1): "离宫", (1,0,0): "震宫",
-    (0,1,1): "巽宫", (0,1,0): "坎宫", (0,0,1): "艮宫", (0,0,0): "坤宫",
+    (1,1,1): "乾宫",  # 乾(阳阳阳)
+    (1,1,0): "兑宫",  # 兑(阳阳阴)
+    (1,0,1): "离宫",  # 离(阳阴阳)
+    (1,0,0): "震宫",  # 震(阳阴阴)
+    (0,1,1): "巽宫",  # 巽(阴阳阳)
+    (0,1,0): "坎宫",  # 坎(阴阳阴)
+    (0,0,1): "艮宫",  # 艮(阴阴阳)
+    (0,0,0): "坤宫",  # 坤(阴阴阴)
 }
 
 # ══════════════════════════════════════════════════════════
@@ -60,7 +88,7 @@ TRIGRAM_TO_NAJIA = {
 HEXAGRAMS = {
     "1,1,1,1,1,1":{"宫名":"乾宫","世爻索引":5,"应爻索引":2,"卦类型":"本宫卦","卦名":"乾为天"},
     "0,1,1,1,1,1":{"宫名":"乾宫","世爻索引":0,"应爻索引":3,"卦类型":"一世卦","卦名":"天风姤"},
-    "0,0,1,1,1,1":{"宫名":"乾宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"天山遁"},
+    "0,0,1,1,1,1":{"宫名":"乾宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"天山遯"},
     "0,0,0,1,1,1":{"宫名":"乾宫","世爻索引":2,"应爻索引":5,"卦类型":"三世卦","卦名":"天地否"},
     "0,0,0,0,1,1":{"宫名":"乾宫","世爻索引":3,"应爻索引":0,"卦类型":"四世卦","卦名":"风地观"},
     "0,0,0,0,0,1":{"宫名":"乾宫","世爻索引":4,"应爻索引":1,"卦类型":"五世卦","卦名":"山地剥"},
@@ -74,22 +102,6 @@ HEXAGRAMS = {
     "1,1,1,1,1,0":{"宫名":"坤宫","世爻索引":4,"应爻索引":1,"卦类型":"五世卦","卦名":"泽天夬"},
     "1,1,1,0,1,0":{"宫名":"坤宫","世爻索引":3,"应爻索引":0,"卦类型":"游魂卦","卦名":"水天需"},
     "0,0,0,0,1,0":{"宫名":"坤宫","世爻索引":2,"应爻索引":5,"卦类型":"归魂卦","卦名":"水地比"},
-    "1,0,0,1,0,0":{"宫名":"震宫","世爻索引":5,"应爻索引":2,"卦类型":"本宫卦","卦名":"震为雷"},
-    "0,0,0,1,0,0":{"宫名":"震宫","世爻索引":0,"应爻索引":3,"卦类型":"一世卦","卦名":"雷地豫"},
-    "0,1,0,1,0,0":{"宫名":"震宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"雷水解"},
-    "0,1,1,1,0,0":{"宫名":"震宫","世爻索引":2,"应爻索引":5,"卦类型":"三世卦","卦名":"雷风恒"},
-    "0,1,1,0,0,0":{"宫名":"震宫","世爻索引":3,"应爻索引":0,"卦类型":"四世卦","卦名":"地风升"},
-    "0,1,1,0,1,0":{"宫名":"震宫","世爻索引":4,"应爻索引":1,"卦类型":"五世卦","卦名":"水风井"},
-    "0,1,1,1,1,0":{"宫名":"震宫","世爻索引":3,"应爻索引":0,"卦类型":"游魂卦","卦名":"泽风大过"},
-    "1,0,0,1,1,0":{"宫名":"震宫","世爻索引":2,"应爻索引":5,"卦类型":"归魂卦","卦名":"泽雷随"},
-    "0,1,1,0,1,1":{"宫名":"巽宫","世爻索引":5,"应爻索引":2,"卦类型":"本宫卦","卦名":"巽为风"},
-    "1,1,1,0,1,1":{"宫名":"巽宫","世爻索引":0,"应爻索引":3,"卦类型":"一世卦","卦名":"风天小畜"},
-    "1,0,1,0,1,1":{"宫名":"巽宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"风火家人"},
-    "1,0,0,0,1,1":{"宫名":"巽宫","世爻索引":2,"应爻索引":5,"卦类型":"三世卦","卦名":"风雷益"},
-    "1,0,0,1,1,1":{"宫名":"巽宫","世爻索引":3,"应爻索引":0,"卦类型":"四世卦","卦名":"天雷无妄"},
-    "1,0,0,1,0,1":{"宫名":"巽宫","世爻索引":4,"应爻索引":1,"卦类型":"五世卦","卦名":"火雷噬嗑"},
-    "1,0,0,0,0,1":{"宫名":"巽宫","世爻索引":3,"应爻索引":0,"卦类型":"游魂卦","卦名":"山雷颐"},
-    "0,1,1,0,0,1":{"宫名":"巽宫","世爻索引":2,"应爻索引":5,"卦类型":"归魂卦","卦名":"山风蛊"},
     "0,1,0,0,1,0":{"宫名":"坎宫","世爻索引":5,"应爻索引":2,"卦类型":"本宫卦","卦名":"坎为水"},
     "1,1,0,0,1,0":{"宫名":"坎宫","世爻索引":0,"应爻索引":3,"卦类型":"一世卦","卦名":"水泽节"},
     "1,0,0,0,1,0":{"宫名":"坎宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"水雷屯"},
@@ -106,6 +118,22 @@ HEXAGRAMS = {
     "0,1,0,0,1,1":{"宫名":"离宫","世爻索引":4,"应爻索引":1,"卦类型":"五世卦","卦名":"风水涣"},
     "0,1,0,1,1,1":{"宫名":"离宫","世爻索引":3,"应爻索引":0,"卦类型":"游魂卦","卦名":"天水讼"},
     "1,0,1,1,1,1":{"宫名":"离宫","世爻索引":2,"应爻索引":5,"卦类型":"归魂卦","卦名":"天火同人"},
+    "1,0,0,1,0,0":{"宫名":"震宫","世爻索引":5,"应爻索引":2,"卦类型":"本宫卦","卦名":"震为雷"},
+    "0,0,0,1,0,0":{"宫名":"震宫","世爻索引":0,"应爻索引":3,"卦类型":"一世卦","卦名":"雷地豫"},
+    "0,1,0,1,0,0":{"宫名":"震宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"雷水解"},
+    "0,1,1,1,0,0":{"宫名":"震宫","世爻索引":2,"应爻索引":5,"卦类型":"三世卦","卦名":"雷风恒"},
+    "0,1,1,0,0,0":{"宫名":"震宫","世爻索引":3,"应爻索引":0,"卦类型":"四世卦","卦名":"地风升"},
+    "0,1,1,0,1,0":{"宫名":"震宫","世爻索引":4,"应爻索引":1,"卦类型":"五世卦","卦名":"水风井"},
+    "0,1,1,1,1,0":{"宫名":"震宫","世爻索引":3,"应爻索引":0,"卦类型":"游魂卦","卦名":"泽风大过"},
+    "1,0,0,1,1,0":{"宫名":"震宫","世爻索引":2,"应爻索引":5,"卦类型":"归魂卦","卦名":"泽雷随"},
+    "0,1,1,0,1,1":{"宫名":"巽宫","世爻索引":5,"应爻索引":2,"卦类型":"本宫卦","卦名":"巽为风"},
+    "1,1,1,0,1,1":{"宫名":"巽宫","世爻索引":0,"应爻索引":3,"卦类型":"一世卦","卦名":"风天小畜"},
+    "1,0,1,0,1,1":{"宫名":"巽宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"风火家人"},
+    "1,0,0,0,1,1":{"宫名":"巽宫","世爻索引":2,"应爻索引":5,"卦类型":"三世卦","卦名":"风雷益"},
+    "1,0,0,1,1,1":{"宫名":"巽宫","世爻索引":3,"应爻索引":0,"卦类型":"四世卦","卦名":"天雷无妄"},
+    "1,0,0,1,0,1":{"宫名":"巽宫","世爻索引":4,"应爻索引":1,"卦类型":"五世卦","卦名":"火雷噬嗑"},
+    "1,0,0,0,0,1":{"宫名":"巽宫","世爻索引":3,"应爻索引":0,"卦类型":"游魂卦","卦名":"山雷颐"},
+    "0,1,1,0,0,1":{"宫名":"巽宫","世爻索引":2,"应爻索引":5,"卦类型":"归魂卦","卦名":"山风蛊"},
     "0,0,1,0,0,1":{"宫名":"艮宫","世爻索引":5,"应爻索引":2,"卦类型":"本宫卦","卦名":"艮为山"},
     "1,0,1,0,0,1":{"宫名":"艮宫","世爻索引":0,"应爻索引":3,"卦类型":"一世卦","卦名":"山火贲"},
     "1,1,1,0,0,1":{"宫名":"艮宫","世爻索引":1,"应爻索引":4,"卦类型":"二世卦","卦名":"山天大畜"},
@@ -126,8 +154,11 @@ HEXAGRAMS = {
 
 
 def _hex_to_binary(hexagram: List[int]) -> List[int]:
-    """Convert 1-4 encoding to 0-1 binary. 1=少阴→0, 2=少阳→1, 3=纯阳→1, 4=纯阴→0"""
-    return [0 if x in [1,4] else 1 for x in hexagram]
+    """Convert 1-4 encoding to 0-1 binary.
+    编码约定: 1=少阴, 2=少阳, 3=老阳(动), 4=老阴(动)
+    输出约定: 1=阳爻, 0=阴爻（与 HEXAGRAMS key 一致）
+    """
+    return [1 if x in [2,3] else 0 for x in hexagram]
 
 
 def get_hexagram_palace(hexagram: List[int]) -> dict:
@@ -198,15 +229,16 @@ def _get_liushou_order(day_branch: str) -> List[str]:
 
 
 def _generate_changed_hexagram(original: List[int]) -> List[int]:
+    """变卦：老阳(3)→少阴(1), 老阴(4)→少阳(2)"""
     changed = []
     for line in original:
-        if line==3: changed.append(1)
-        elif line==4: changed.append(2)
+        if line==3: changed.append(1)   # 老阳→少阴
+        elif line==4: changed.append(2)  # 老阴→少阳
         else: changed.append(line)
     if changed==original:
         for i in range(len(changed)):
-            if original[i]==3: changed[i]=2; break
-            elif original[i]==4: changed[i]=1; break
+            if original[i]==3: changed[i]=1; break
+            elif original[i]==4: changed[i]=2; break
     return changed
 
 
@@ -248,8 +280,8 @@ def arrange_hexagram(original_hexagram: List[int], time: datetime,
     时间datetime, 原因str → 返回dict含所有排盘数据"""
 
     positions = ["初爻","二爻","三爻","四爻","五爻","上爻"]
-    line_names = {1:"少阴",2:"少阳",3:"纯阳",4:"纯阴"}
-    line_symbols = {1:"-- --",2:"-----",3:"-----",4:"-- --"}
+    line_names = {1:"少阴",2:"少阳",3:"老阳",4:"老阴"}
+    line_symbols = {1:"-- --",2:"-----",3:"----- ○",4:"-- -- ×"}
 
     # 日干支 (优先用 calendar.py 精算)
     try:
@@ -273,33 +305,34 @@ def arrange_hexagram(original_hexagram: List[int], time: datetime,
     # 卦宫信息
     orig_info = get_hexagram_palace(original_hexagram)
     palace = orig_info["宫名"]; hex_name = orig_info["卦名"]
-    # 修正纳甲：上卦用宫纳甲[3:6]，下卦用下卦自卦纳甲[0:3]
+    # 纳甲：下卦取内卦纳甲，上卦取外卦纳甲
     orig_binary = _hex_to_binary(original_hexagram)
     lower_tri = tuple(orig_binary[0:3])
     upper_tri = tuple(orig_binary[3:6])
     lower_palace = TRIGRAM_TO_NAJIA.get(lower_tri, "乾宫")
-    upper_branch = HEXAGRAM_EARTHLY_BRANCH.get(palace, HEXAGRAM_EARTHLY_BRANCH["乾宫"])
-    lower_branch = HEXAGRAM_EARTHLY_BRANCH.get(lower_palace, HEXAGRAM_EARTHLY_BRANCH["乾宫"])
-    orig_branch = lower_branch[0:3] + upper_branch[3:6]
+    upper_palace = TRIGRAM_TO_NAJIA.get(upper_tri, "乾宫")
+    orig_branch = NAJIA_INNER.get(lower_palace, NAJIA_INNER["乾宫"]) + \
+                  NAJIA_OUTER.get(upper_palace, NAJIA_OUTER["乾宫"])
     shi_idx = orig_info["世爻索引"]; ying_idx = orig_info["应爻索引"]
 
     # 变卦
     has_moving = any(line in [3,4] for line in original_hexagram)
     changed_hex = _generate_changed_hexagram(original_hexagram) if has_moving else None
     changed_info = get_hexagram_palace(changed_hex) if has_moving and changed_hex else None
-    # 修正变卦纳甲：同上规则（上卦用变卦宫纳甲[3:6]，下卦用自卦纳甲[0:3]）
+    # 变卦纳甲：同规则
     if has_moving and changed_info:
         ch_binary = _hex_to_binary(changed_hex)
         ch_lower_tri = tuple(ch_binary[0:3])
+        ch_upper_tri = tuple(ch_binary[3:6])
         ch_lower_palace = TRIGRAM_TO_NAJIA.get(ch_lower_tri, "乾宫")
-        ch_upper_branch = HEXAGRAM_EARTHLY_BRANCH.get(changed_info["宫名"], HEXAGRAM_EARTHLY_BRANCH["乾宫"])
-        ch_lower_branch = HEXAGRAM_EARTHLY_BRANCH.get(ch_lower_palace, HEXAGRAM_EARTHLY_BRANCH["乾宫"])
-        changed_branch = ch_lower_branch[0:3] + ch_upper_branch[3:6]
+        ch_upper_palace = TRIGRAM_TO_NAJIA.get(ch_upper_tri, "乾宫")
+        changed_branch = NAJIA_INNER.get(ch_lower_palace, NAJIA_INNER["乾宫"]) + \
+                         NAJIA_OUTER.get(ch_upper_palace, NAJIA_OUTER["乾宫"])
     else:
         changed_branch = None
 
-    # 世爻五行
-    shi_wx = BRANCH_WUXING[orig_branch[shi_idx]]
+    # 六亲以本卦宫五行为"我"（传统六爻标准排法）
+    palace_wx = PALACE_WUXING.get(palace, "金")
     is_moving = [line in [3,4] for line in original_hexagram]
     moving_indices = [i for i,m in enumerate(is_moving) if m]
 
@@ -321,7 +354,7 @@ def arrange_hexagram(original_hexagram: List[int], time: datetime,
     for i in range(5,-1,-1):
         lv = original_hexagram[i]; beast = liushou_order[i]
         br = orig_branch[i]; wx = BRANCH_WUXING[br]
-        lq = _get_liqin(shi_wx,wx); st = orig_strength[i]
+        lq = _get_liqin(palace_wx,wx); st = orig_strength[i]
         shiying = "世" if i==shi_idx else ("应" if i==ying_idx else "-")
         lines.append({
             "爻位":positions[i],"卦象":line_names[lv],
@@ -335,8 +368,7 @@ def arrange_hexagram(original_hexagram: List[int], time: datetime,
         for i in range(5,-1,-1):
             lv = changed_hex[i]; beast = liushou_order[i]
             br = changed_branch[i]; wx = BRANCH_WUXING[br]
-            ch_shi_wx = BRANCH_WUXING[changed_branch[ch_shi]]
-            lq = _get_liqin(ch_shi_wx,wx); st = changed_strength[i]
+            lq = _get_liqin(palace_wx,wx); st = changed_strength[i]
             shiying = "世" if i==ch_shi else ("应" if i==(ch_shi+3)%6 else "-")
             changed_lines.append({
                 "爻位":positions[i],"卦象":line_names[lv],
@@ -374,30 +406,18 @@ def _init_hexagram_map():
         return
     try:
         from scripts.meihua import BA_GUA, get_bian_gua_name
+        from scripts.qigua import TRIGRAM_BINARY
     except ImportError:
         return
 
     # 遍历所有8×8=64卦组合，建立卦名→二进制映射
-    trigrams = {v: k for k, v in BA_GUA.items()}
-    for up_name, up_num in list(trigrams.items())[:8]:
-        for down_name, down_num in list(trigrams.items())[:8]:
+    for up_name in ["乾","兑","离","震","巽","坎","艮","坤"]:
+        for down_name in ["乾","兑","离","震","巽","坎","艮","坤"]:
             name = get_bian_gua_name(up_name, down_name)
-            # 二进制：上卦3位 + 下卦3位
-            up_bin = [1, 1, 1] if up_num == 1 else (
-                      [1, 1, 0] if up_num == 2 else (
-                      [1, 0, 1] if up_num == 3 else (
-                      [1, 0, 0] if up_num == 4 else (
-                      [0, 0, 1] if up_num == 5 else (
-                      [0, 1, 0] if up_num == 6 else (
-                      [0, 0, 1] if up_num == 7 else [0, 0, 0]))))))
-            down_bin = [1, 1, 1] if down_num == 1 else (
-                        [1, 1, 0] if down_num == 2 else (
-                        [1, 0, 1] if down_num == 3 else (
-                        [1, 0, 0] if down_num == 4 else (
-                        [0, 0, 1] if down_num == 5 else (
-                        [0, 1, 0] if down_num == 6 else (
-                        [0, 0, 1] if down_num == 7 else [0, 0, 0]))))))
-            _HEXAGRAM_BINARY_MAP[name] = up_bin + down_bin
+            # 二进制：下卦3位 + 上卦3位（从初爻到上爻）
+            down_bin = TRIGRAM_BINARY.get(down_name, [0,0,0])
+            up_bin = TRIGRAM_BINARY.get(up_name, [0,0,0])
+            _HEXAGRAM_BINARY_MAP[name] = down_bin + up_bin
 
     # 兼容别名
     _HEXAGRAM_BINARY_MAP["乾为天"] = _HEXAGRAM_BINARY_MAP.get("乾为天", [1,1,1,1,1,1])
@@ -420,7 +440,7 @@ def get_hexagram_binary(hexagram_name: str) -> List[int]:
 def binary_to_hexagram_encoding(binary: List[int]) -> List[int]:
     """
     六爻二进制列表 → 六爻编码。
-    二进制: 0=阴(初),1=阳(一)，从初爻到上爻
+    二进制: 1=阳, 0=阴（从初爻到上爻）
     编码: 1=少阴, 2=少阳
     """
     return [2 if b == 1 else 1 for b in binary]
@@ -429,14 +449,12 @@ def binary_to_hexagram_encoding(binary: List[int]) -> List[int]:
 def deduce_moving_lines(ben_binary: List[int], bian_binary: List[int]) -> List[int]:
     """
     对比本卦和变卦二进制，推算动爻位置。
-    返回: 动爻索引列表（0-based，初爻=5, 上爻=0）
-    （注意：六爻编码中索引0=上爻, 5=初爻）
+    返回: 动爻索引列表（0-based，0=初爻, 5=上爻）
     """
     moving = []
     for i in range(6):
         if ben_binary[i] != bian_binary[i]:
-            # 返回从初爻开始的索引（0=初爻, 5=上爻）
-            moving.append(5 - i)
+            moving.append(i)
     return moving
 
 
@@ -465,12 +483,12 @@ def arrange_hexagram_by_name(ben_name: str, bian_name: Optional[str] = None,
         bian_binary = get_hexagram_binary(bian_name)
         moving_indices = deduce_moving_lines(ben_binary, bian_binary)
         for idx in moving_indices:
-            # 编码索引：0=上爻(5-i), 5=初爻
-            enc_idx = 5 - idx
+            # 编码索引：0=初爻, 5=上爻
+            enc_idx = idx
             if 0 <= enc_idx < 6:
-                if ben_encoding[enc_idx] == 2:  # 少阳→老阳
+                if ben_encoding[enc_idx] == 2:  # 少阳→老阳(动)
                     ben_encoding[enc_idx] = 3
-                elif ben_encoding[enc_idx] == 1:  # 少阴→老阴
+                elif ben_encoding[enc_idx] == 1:  # 少阴→老阴(动)
                     ben_encoding[enc_idx] = 4
 
     return arrange_hexagram(ben_encoding, time, reason)
