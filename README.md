@@ -248,3 +248,46 @@ Say these trigger words in your conversation:
 | Framework & Docs (`SKILL.md`, `API.md`, etc.) | **MIT-0** | Open source, no attribution required |
 | Data (`data/xiang/`) | **CC BY-NC-SA 4.0** | Attribution-NonCommercial-ShareAlike |
 | Core algorithms | **Proprietary** | API only, not open source |
+
+---
+
+## 💬 反馈 / Feedback
+
+你的反馈对改进系统至关重要！
+
+### 为什么需要你的反馈？
+
+**"读象"功能的准确性依赖于对各类卦象、符号、情境的理解。** 你提供的每一个类象信息，都会帮助我们：
+1. 识别当前算法的盲点
+2. 扩充类象数据库
+3. 改进解读逻辑的准确性
+
+**你的反馈将直接提升系统的解读质量，让所有用户受益！**
+
+### 如何提供反馈？
+
+点击以下链接，选择合适的模板提交反馈：
+
+| 反馈类型 | 链接 | 说明 |
+|---------|------|------|
+| **🐛 Bug 报告** | [提交 Bug](https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=bug_report.md) | 报告错误或异常行为 |
+| **✨ 功能请求** | [建议功能](https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=feature_request.md) | 建议新功能或改进 |
+| **💬 使用反馈** | [提供反馈](https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=feedback.md) | 提供使用体验、类象信息等 |
+
+### 🌟 重点：提供类象信息
+
+如果你发现"读象"功能的解读不够准确，**请提供以下信息**（在任意 Issue 模板中均有引导）：
+
+```
+输入的卦象/符号：
+系统返回的解读结果：
+你期望的准确解读：
+该类象的其他相关信息（背景/上下文/类似案例）：
+```
+
+**为什么这很重要？**
+- 每个类象信息都会直接用于训练和改进算法
+- 你的反馈将帮助系统更好地理解类似场景
+- 这是提升"读象"准确性的最直接方式
+
+---
