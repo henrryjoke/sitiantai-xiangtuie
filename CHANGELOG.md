@@ -4,6 +4,37 @@
 
 ---
 
+## [v0.5.0] - 2026-05-18
+
+### 🔄 架构回滚：核心算法从远程 API 恢复为本地执行
+
+v0.4.0 尝试的"IP保护分层重构"（核心算法转移至远程 API）导致技能在远程服务不可用时完全瘫痪。
+本版本回滚到 v0.3.x 的本地执行架构，远程仅作为可选增强层。
+
+#### Changed / 变更
+
+- **架构恢复**：7 个核心脚本全部从 `.gitignore` 移除，恢复 Git 追踪
+  - `scripts/calendar.py` — 历法精算
+  - `scripts/meihua.py` — 梅花易数
+  - `scripts/liuyao.py` — 六爻纳甲
+  - `scripts/qigua.py` — 起卦引擎（含前一版本的 bug 修复）
+  - `scripts/liuren.py` — 大六壬
+  - `scripts/qimen.py` — 奇门遁甲
+  - `scripts/xiang_query.py` — 类象查询引擎
+- **删除 `API.md`**：远程 API 文档已移除（API 服务不再作为核心依赖）
+- **`requirements.txt`**：恢复 Git 追踪，依赖包（swisseph, lunar-python）在本地可用
+- **LICENSE 恢复**：从 MIT-0 恢复为 MIT License
+- **SKILL.md 全面更新**：所有 `/api/` 引用改回本地脚本调用，架构图更新为 `Skill + Python 脚本层`
+
+#### Fixed / 修复
+
+- **根本性故障恢复**：远程 API 不可用时技能 100% 可用（本地执行，零依赖网络）
+- **`scripts/qigua.py` 两处 Bug 已在 v0.4.1 基础上保留**：
+  - `TRIGRAM_BINARY` 中巽卦映射 `[0,0,1]` → `[0,1,1]`
+  - `_gua_name_to_encoding` 移除多余的 `reversed()` 调用
+
+---
+
 ## [v0.4.1] - 2026-05-17
 
 ### 🔥 Hotfix：修复 ClawHub 发布版本无法使用的问题

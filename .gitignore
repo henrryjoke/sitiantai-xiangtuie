@@ -17,7 +17,3 @@ Thumbs.db
 feedback/*.jsonl
 .env
 *.local
-
-# Algorithm layer - not open source
-scripts/
-requirements.txt
