@@ -9,6 +9,11 @@ liuyao.py — 六爻排盘引擎（司天监象推演系统）
 from datetime import datetime,date
 from typing import Dict,List,Tuple,Optional,Any
 
+# 核心算法保护层（旺衰评分：独创算法，源码不公开）
+from .protected.wangshuai_score import seasonal_status as _get_seasonal_status
+from .protected.wangshuai_score import calculate_strength as _calculate_yao_strength
+from .protected.wangshuai_score import batch_calculate_strength as _batch_calculate_strength
+
 # ══════════════════════════════════════════════════════════
 # 常量与配置 (dizhi + main 合并)
 # ══════════════════════════════════════════════════════════
@@ -149,107 +154,7 @@ EXTINCTION      = {"木":"申","火":"亥","金":"寅","水":"巳","土":"亥"}
 SANXING_BRANCH  = {"寅":"巳","巳":"申","申":"寅","丑":"戌","戌":"未","未":"丑","子":"卯","卯":"子"}
 LIUHAI_BRANCH   = {"子":"未","未":"子","丑":"午","午":"丑","寅":"巳","巳":"寅","卯":"辰","辰":"卯","申":"亥","亥":"申","酉":"戌","戌":"酉"}
 
-
-def _get_seasonal_status(mb: str) -> dict:
-    if mb in ["寅","卯"]:   return {"木":"旺","火":"相","水":"休","金":"囚","土":"死"}
-    if mb in ["巳","午"]:   return {"火":"旺","土":"相","木":"休","水":"囚","金":"死"}
-    if mb in ["申","酉"]:   return {"金":"旺","水":"相","土":"休","火":"囚","木":"死"}
-    if mb in ["亥","子"]:   return {"水":"旺","木":"相","金":"休","土":"囚","火":"死"}
-    if mb in ["辰","戌","丑","未"]: return {"土":"旺","金":"相","火":"休","木":"囚","水":"死"}
-    return {}
-
-
-def _calculate_yao_strength(yb: str, mb: str, db: str,
-                            changed_yao: Optional[str]=None,
-                            is_moving: bool=False) -> dict:
-    score = 0.0; status = []
-    yw = BRANCH_WUXING[yb]; mw = BRANCH_WUXING[mb]; dw = BRANCH_WUXING[db]
-
-    # ═══════ 月建：旺相休囚死 ═══════
-    seasonal = _get_seasonal_status(mb).get(yw, "")
-    season_scores = {"旺": (2.0, "旺(当令)"), "相": (1.5, "相(令生)"),
-                     "休": (-0.5, "休(生令)"), "囚": (-1.0, "囚(克令)"),
-                     "死": (-1.5, "死(令克)")}
-    if seasonal in season_scores:
-        sc, label = season_scores[seasonal]
-        score += sc; status.append(label)
-
-    # 月建临 (地支相同且非旺，额外加成)
-    if yb == mb and seasonal != "旺":
-        score += 1.0; status.append("月建(临)")
-
-    # 月破 (六冲)
-    month_conflict = CONFLICT_BRANCH.get(yb) == mb
-    if month_conflict:
-        score -= 2.0; status.append("月破")
-
-    # 月合 (六合)
-    month_combine = COMBINE_BRANCH.get(yb) == mb
-    if month_combine:
-        if CONQUER_WUXING.get(mw) != yw and CONQUER_WUXING.get(yw) != mw:
-            score += 1.0; status.append("月合")
-        else:
-            score -= 0.5; status.append("月合克")
-
-    # ═══════ 日建：临、生、克、冲、合、刑、害 ═══════
-    if yb == db:
-        score += 1.5; status.append("日建(临)")
-
-    if GENERATE_WUXING.get(dw) == yw:
-        score += 1.5; status.append("日生")
-
-    if CONQUER_WUXING.get(dw) == yw:
-        score -= 1.0; status.append("日克")
-
-    day_conflict = CONFLICT_BRANCH.get(yb) == db
-    if day_conflict:
-        if score < 0.5:
-            score -= 1.5; status.append("日冲→散")
-        else:
-            score -= 0.5; status.append("日冲→暗动")
-
-    day_combine = COMBINE_BRANCH.get(yb) == db
-    if day_combine:
-        if CONQUER_WUXING.get(dw) != yw and CONQUER_WUXING.get(yw) != dw:
-            score += 1.0; status.append("日合")
-        else:
-            score -= 0.5; status.append("日合克")
-
-    if SANXING_BRANCH.get(yb) == db:
-        score -= 0.5; status.append("日刑")
-
-    if LIUHAI_BRANCH.get(yb) == db:
-        score -= 0.5; status.append("日害")
-
-    # ═══════ 通用状态 ═══════
-    dwb = IMPERIAL_WANG[yw]
-    if not isinstance(dwb, list): dwb = [dwb]
-    if db in dwb:
-        score += 0.5; status.append("帝旺")
-
-    tb = TOMB_BRANCH[yw]
-    if not isinstance(tb, list): tb = [tb]
-    tomb = []
-    if mb in tb: tomb.append("月墓")
-    if db in tb: tomb.append("日墓")
-    if tomb:
-        if is_moving: status.append(f"入{'/'.join(tomb)}(动)")
-        else: score = max(score, -0.1); status.append(f"入{'/'.join(tomb)}")
-
-    if not is_moving and db == EXTINCTION.get(yw, ""):
-        score -= 0.5; status.append("绝地")
-    if changed_yao and is_moving and changed_yao == EXTINCTION.get(yw, ""):
-        score -= 1.0; status.append("化绝")
-
-    return {"score":round(score,2),"status":status}
-
-
-def _batch_calculate_strength(yao_branches, mb, db,
-                               changed_branches=None, is_moving_yaos=None):
-    changed_branches = changed_branches or [None]*6
-    is_moving_yaos = is_moving_yaos or [False]*6
-    return [_calculate_yao_strength(yao_branches[i],mb,db,
-            changed_branches[i],is_moving_yaos[i]) for i in range(6)]
+# ═══════ 旺衰评分移到 protected/wangshuai_score（保护层） ═══════
 
 
 # ══════════════════════════════════════════════════════════

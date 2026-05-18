@@ -4,6 +4,35 @@
 
 ---
 
+## [v0.6.0] - 2026-05-18
+
+### 🛡️ 核心算法保护：pyarmor 混淆部署
+
+独创算法（类象展开引擎 xiang_engine、旺衰精算 wangshuai_score）从纯文本 Python 转为 pyarmor 运行时加密分发。
+
+#### Added / 新增
+
+- **`scripts/protected/` 保护层**：
+  - `xiang_engine.py` — 类象知识库查询引擎（类象分类体系、语境匹配权重、维度映射）
+  - `wangshuai_score.py` — 旺衰精算引擎（月建旺相休囚死 + 日建七效应复合评分）
+  - 以上两个模块经 **pyarmor 加密混淆**，运行时自动解密，源码不可读
+
+- **`pyarmor_runtime_000000/`** — pyarmor 运行时支持库，确保加密模块正常加载
+
+#### Changed / 变更
+
+- **`scripts/xiang_query.py`**：改为薄包装器，核心实现委托给 `protected/xiang_engine.py`
+- **`scripts/liuyao.py`**：旺衰评分函数（`_get_seasonal_status`、`_calculate_yao_strength`、`_batch_calculate_strength`）移至 `protected/wangshuai_score.py`，原文件改为 import 引用
+- **`scripts/__init__.py`**：新增包初始化文件
+
+#### Security / 安全
+
+- 独创算法从 MIT 开源 → pyarmor 加密分发，提高复制门槛
+- 用户本地执行、零网络依赖、零额外安装步骤
+- 保护层与原文件解耦：开源层（MIT）与保护层（加密）清晰分离
+
+---
+
 ## [v0.5.0] - 2026-05-18
 
 ### 🔄 架构回滚：核心算法从远程 API 恢复为本地执行
