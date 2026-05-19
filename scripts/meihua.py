@@ -12,7 +12,8 @@ from typing import Dict,List,Tuple
 # 八卦名称
 # ═══════════════════════════════════════════
 
-BA_GUA = {1:"乾",2:"兑",3:"离",4:"震",5:"巽",6:"坎",7:"艮",0:"坤"}
+# 注意：坤卦编号为 8（而非 0），避免模运算结果 0 导致 _GUA_HU 查表失败
+BA_GUA = {1:"乾",2:"兑",3:"离",4:"震",5:"巽",6:"坎",7:"艮",8:"坤"}
 
 # ═══════════════════════════════════════════
 # 六十四卦互卦查找表 (caculate.py 原表)
@@ -169,12 +170,14 @@ def compute_meihua(year: int, month: int, day: int, hour: int) -> Dict:
     d_num = lunar_day
     h_idx = _ZHI2IDX.get(lunar_hour_zhi, 1)
 
-    # 上卦 = (年+月+日) % 8
+    # 上卦 = (年+月+日) % 8，结果 0 对应坤(8)
     up_num = (y_idx + m_num + d_num) % 8
+    if up_num == 0: up_num = 8
     gua_up = BA_GUA.get(up_num, BA_GUA[1])
 
-    # 下卦 = (年+月+日+时) % 8
+    # 下卦 = (年+月+日+时) % 8，结果 0 对应坤(8)
     down_num = (y_idx + m_num + d_num + h_idx) % 8
+    if down_num == 0: down_num = 8
     gua_down = BA_GUA.get(down_num, BA_GUA[1])
 
     # 动爻 = (年+月+日+时) % 6

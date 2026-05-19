@@ -24,10 +24,10 @@ from typing import Dict, List, Tuple, Optional, Any
 
 # 铜钱背数 → 爻象
 COIN_TO_LINE = {
-    3: ("老阳", "----- ○", 3),   # 3背 → 老阳 动
-    2: ("少阴", "-- --",   1),   # 2背1字 → 少阴 静
-    1: ("少阳", "-----",   2),   # 1背2字 → 少阳 静
-    0: ("老阴", "-- -- ×", 4),   # 0背(3字) → 老阴 动
+    3: ("老阳", "----- ○", 3),   # 3背 → 老阳 动（阳爻动）
+    2: ("少阴", "-- --",   1),   # 2背1字 → 少阴 静（阴爻静）
+    1: ("少阳", "-----",   2),   # 1背2字 → 少阳 静（阳爻静）
+    0: ("老阴", "-- -- ×", 4),   # 0背(3字) → 老阴 动（阴爻动）
 }
 
 # 八卦 → 三爻二进制
@@ -72,10 +72,10 @@ def meihua_date_qigua(year: int, month: int, day: int, hour: int) -> Dict:
         mh["变卦"]["上卦"], mh["变卦"]["下卦"]
     )
 
-    # 动爻处理：将动爻位置上的编码改为 3(阳动) 或 4(阴动)
+    # 动爻处理：将动爻位置上的编码改为 3(老阳动) 或 4(老阴动)
     change_line = mh["变爻"]
-    if change_line <= 6:
-        idx = 6 - change_line  # 编码从初爻(索引5)开始
+    if change_line and 1 <= change_line <= 6:
+        idx = change_line - 1  # 编码索引：1→0(初爻), 6→5(上爻)
         if hexagram_encoding[idx] == 2:  # 少阳→老阳
             hexagram_encoding[idx] = 3
         elif hexagram_encoding[idx] == 1:  # 少阴→老阴
@@ -113,7 +113,7 @@ def meihua_to_hexagram_encoding(meihua_result: Dict) -> List[int]:
 
     change_line = meihua_result.get("变爻", 0)
     if change_line and 1 <= change_line <= 6:
-        idx = 6 - change_line
+        idx = change_line - 1  # 1→0(初爻), 6→5(上爻)
         if encoding[idx] == 2:
             encoding[idx] = 3
         elif encoding[idx] == 1:
@@ -232,7 +232,7 @@ def qigua_full_pailian(encoding: List[int], time: Optional[datetime] = None,
 
 def encoding_to_display(encoding: List[int]) -> str:
     """六爻编码 → 爻象显示文本"""
-    symbols = {1: "-- --", 2: "-----", 3: "----- ○", 4: "-- -- ×"}
+    symbols = {1:"-- --", 2:"-----", 3:"----- ○", 4:"-- -- ×"}
     positions = ["上爻", "五爻", "四爻", "三爻", "二爻", "初爻"]
     lines = []
     for i in range(6):
@@ -247,16 +247,16 @@ def encoding_to_display(encoding: List[int]) -> str:
 def _gua_name_to_encoding(up_trigram: str, down_trigram: str) -> List[int]:
     """
     上下卦名 → 六爻编码列表（从初爻到上爻）。
-    编码规则：阳爻=2, 阴爻=1
+    编码规则：1=少阴(阴爻静), 2=少阳(阳爻静)
+    TRIGRAM_BINARY: 1=阳, 0=阴
+    阳爻(b=1) → 少阳(2), 阴爻(b=0) → 少阴(1)
     """
     up_bin = TRIGRAM_BINARY.get(up_trigram, [0, 0, 0])
     down_bin = TRIGRAM_BINARY.get(down_trigram, [0, 0, 0])
 
-    # TRIGRAM_BINARY 已经是初→三 / 四→上 顺序
-    # 直接使用即可得到初爻→上爻的六爻编码
     encoding = []
     for b in down_bin:    # 下卦：初二三爻
-        encoding.append(2 if b == 1 else 1)
+        encoding.append(2 if b == 1 else 1)  # 阳→2(少阳), 阴→1(少阴)
     for b in up_bin:      # 上卦：四五上爻
         encoding.append(2 if b == 1 else 1)
 
@@ -267,20 +267,19 @@ def _encoding_to_gua_name(encoding: List[int]) -> str:
     """
     六爻编码 → 卦名。
     编码: [1=少阴, 2=少阳, 3=老阳, 4=老阴]×6
-    动爻(3,4)按静爻(1,2)处理。
+    动爻(3,4)按静爻(2,1)处理。
     """
-    # 动爻转为静爻
+    # 动爻转为静爻: 老阳(3)→少阳(2), 老阴(4)→少阴(1)
     static = [2 if v == 3 else (1 if v == 4 else v) for v in encoding]
 
-    # 拆为上卦（高3位）和下卦（低3位）
-    upper = static[3:]   # 上卦: 四/五/上爻
+    # 拆为下卦（低3位）和上卦（高3位）
     lower = static[:3]   # 下卦: 初/二/三爻
+    upper = static[3:]   # 上卦: 四/五/上爻
 
-    # 二进制 → 八卦
-    up_bin = tuple(1 if v == 2 else 0 for v in upper)  # 阳=2→1, 阴=1→0
+    # 编码→二进制: 少阳(2)→1(阳), 少阴(1)→0(阴)
+    up_bin = tuple(1 if v == 2 else 0 for v in upper)
     down_bin = tuple(1 if v == 2 else 0 for v in lower)
 
-    # 注意：上卦和下卦的二进制顺序需要反转（从下往上）
     up_trigram = BINARY_TO_TRIGRAM.get(up_bin, "")
     down_trigram = BINARY_TO_TRIGRAM.get(down_bin, "")
 

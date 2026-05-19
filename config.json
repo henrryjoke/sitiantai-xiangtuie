@@ -5,7 +5,7 @@
   "description_en": "Hexagram Interpreter — Four-Element Synthesis divination system. Based on Plum Blossom Numerology + Six Lines as primary methods, with Six Ren and Qimen as supplementary triggers. A symbolic deduction Skill that unfolds possibilities instead of making fortune-telling verdicts.",
   "description_fr": "Interprète d'hexagramme — système de divination à synthèse quadruple. Basé sur la numérologie des fleurs de prunier et les six lignes, avec Six Ren et Qi Men comme déclencheurs auxiliaires. Un Skill de déduction symbolique qui déploie des possibilités sans porter de jugement.",
   "description_es": "Intérprete de hexagramas — sistema de adivinación de síntesis cuádruple. Basado en la numerología de ciruela y seis líneas, con Seis Ren y Qi Men como disparadores auxiliares. Un Skill de deducción simbólica que despliega posibilidades sin emitir veredictos.",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "homepage": "https://github.com/henrryjoke/sitiantai-xiangtuie",
   "categories": ["AI增强", "知识管理", "多媒体/垂直"],
   "categories_en": ["AI Enhancement", "Knowledge Management", "Specialized"],

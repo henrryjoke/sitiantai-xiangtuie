@@ -343,7 +343,8 @@ data/xiang/
   ├── scripts/calendar.py      # 历法精算+八字 ✅
   ├── scripts/meihua.py        # 梅花易数（时间起卦/体用/错综） ✅
   ├── scripts/liuyao.py        # 六爻纳甲（本变/世应/六亲/六神/旺衰/卦名输入） ✅
-  ├── scripts/qigua.py         # 起卦引擎（梅花日期起卦+掷铜钱起卦+桥接） ✅ NEW
+  ├── scripts/wangshuai_score.py # 旺衰评分引擎（月建旺相休囚死+日建七效应） ✅ NEW
+  ├── scripts/qigua.py         # 起卦引擎（梅花日期起卦+掷铜钱起卦+桥接） ✅
   ├── scripts/liuren.py        # 大六壬（天地盘/四课/三传/贵人） ✅
   ├── scripts/qimen.py         # 奇门遁甲（地盘/天盘/八门/九星/八神） ✅
   └── scripts/xiang_query.py   # 类象查询引擎（28符号→6类别→多语境展开） ✅
