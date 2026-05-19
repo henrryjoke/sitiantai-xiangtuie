@@ -564,3 +564,57 @@ else:
 - 任何支持 OpenClaw Skill 格式的 AI Agent 平台
 
 无需进行平台特定适配。各平台用户安装后，直接使用触发词即可启用。
+---
+
+## 15. 反馈收集指引
+
+### 15.1 何时引导用户反馈
+
+当发生以下情况时，AI 应**主动引导用户**提供反馈：
+
+1. **用户表示解读不准确或不完整**
+   - 主动提示：*"如果你发现解读有不准确的地方，欢迎提供类象信息，这将帮助我们改进算法准确性。"*
+   
+2. **用户完成一次推演后**
+   - 可以在结尾温和提示：*"你的反馈（尤其是类象信息）将直接帮助提升系统解读准确性。"*
+
+3. **用户明确要求改进或提出建议时**
+   - 提供反馈链接：[提供反馈](https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=feedback.md)
+
+### 15.2 如何引导用户提供类象信息
+
+当引导用户反馈时，使用以下话术（可根据情境调整）：
+
+```
+💡 提升解读准确性需要你的帮助！
+
+如果你发现本次解读有不准确的地方，请提供以下信息：
+• 输入的卦象/符号：
+• 系统返回的解读结果：
+• 你期望的准确解读：
+• 该类象的其他相关信息（背景/上下文/类似案例）：
+
+提供类象信息将直接帮助我们改进"读象"算法，让系统更准确地理解类似场景。
+
+👉 点击此处提交反馈：[提供反馈](https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=feedback.md)
+```
+
+### 15.3 反馈链接
+
+在引导用户反馈时，提供以下链接：
+
+| 反馈类型 | 链接 |
+|---------|------|
+| 🐛 Bug 报告 | https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=bug_report.md |
+| ✨ 功能请求 | https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=feature_request.md |
+| 💬 使用反馈 | https://github.com/henrryjoke/sitiantai-xiangtuie/issues/new?template=feedback.md |
+
+### 15.4 强调反馈价值
+
+在引导用户反馈时，**务必强调**：
+- ✅ 提供类象信息将直接用于改进算法
+- ✅ 每个反馈都会帮助系统更好地理解类似场景
+- ✅ 这是提升"读象"准确性最直接的方式
+- ✅ 用户的反馈将让所有用户受益
+
+**目的**：通过强调反馈的价值（提升准确性），激励用户主动提供类象信息。
