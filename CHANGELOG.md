@@ -4,6 +4,26 @@
 
 ---
 
+## [v0.8.1] - 2026-05-19
+
+### 🐛 修复：六神排列算法（日干起法）
+
+六神排列算法从错误的"日支起法"修正为正确的"日干起法"。
+
+#### Fixed / 修复
+
+- **`scripts/liuyao.py` 六神排列日干修正**：
+  - 原算法：`ZHI_ORDER.index(day_branch) % 6`（按日支起六神，❌ 错误）
+  - 新算法：`GAN_TO_LIUSHOU[day_stem]`（按日干起六神，✅ 正确）
+  - 规则对照：甲乙→青龙、丙丁→朱雀、戊→勾陈、己→螣蛇、庚辛→白虎、壬癸→玄武
+
+#### Changed / 变更
+
+- **`scripts/liuyao.py`**：新增 `GAN_TO_LIUSHOU` 映射字典
+- 调用 `_get_liushou_order()` 时传入 `day_stem` 而非 `day_branch`
+
+---
+
 ## [v0.8.0] - 2026-05-19
 
 ### 🏗️ 架构重构：放弃 PyArmor 混淆，完全开源

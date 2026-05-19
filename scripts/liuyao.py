@@ -28,6 +28,17 @@ BRANCH_WUXING = {
 
 LIUSHOU = ["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]
 
+# 六神起法：按日干（传统京房规则）
+# 甲乙→青龙, 丙丁→朱雀, 戊→勾陈, 己→螣蛇, 庚辛→白虎, 壬癸→玄武
+GAN_TO_LIUSHOU = {
+    "甲": 0, "乙": 0,
+    "丙": 1, "丁": 1,
+    "戊": 2,
+    "己": 3,
+    "庚": 4, "辛": 4,
+    "壬": 5, "癸": 5,
+}
+
 # ══════════════════════════════════════════════════════════
 # 纳甲地支（六爻核心数据，严格按传统京房纳甲体系）
 # ══════════════════════════════════════════════════════════
@@ -223,8 +234,11 @@ def _get_liqin(wo_wx: str, target_wx: str) -> str:
     return "妻财"
 
 
-def _get_liushou_order(day_branch: str) -> List[str]:
-    idx = ZHI_ORDER.index(day_branch)%6
+def _get_liushou_order(day_stem: str) -> List[str]:
+    """六神起法：按日干（京房传统规则）
+    甲乙青龙、丙丁朱雀、戊勾陈、己螣蛇、庚辛白虎、壬癸玄武
+    """
+    idx = GAN_TO_LIUSHOU.get(day_stem, 0)
     return [LIUSHOU[(idx+i)%6] for i in range(6)]
 
 
@@ -300,7 +314,8 @@ def arrange_hexagram(original_hexagram: List[int], time: datetime,
 
     day_branch = day_ganzhi[1]
     xunkong = _get_xunkong(day_ganzhi)
-    liushou_order = _get_liushou_order(day_branch)
+    day_stem = day_ganzhi[0]
+    liushou_order = _get_liushou_order(day_stem)
 
     # 卦宫信息
     orig_info = get_hexagram_palace(original_hexagram)
